@@ -13,7 +13,7 @@ export default function Cars() {
 
   const fetchCars = async () => {
     try {
-      const response = await fetch("http://localhost:3000/getCars");
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}getCars`);
       const data = await response.json();
       setCars(data);
     } catch (error) {
@@ -25,7 +25,7 @@ export default function Cars() {
     fetchCars()
   }, []);
   return (
-    <div className="flex flex-wrap mx-10">
+    <div className="flex flex-wrap mx-auto mt-16">
       {cars.map((c)=>(
         <div className="mx-auto" key={c.correlative}>
           <Car plate={c.plate} description={c.description}/>

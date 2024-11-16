@@ -1,5 +1,3 @@
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const cors = require("cors");
 const express = require("express");
 const pool = require("./config/db.js");
@@ -8,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const port = process.env.API_PORT;
+const port = 3000;
 
 const moment = require('moment');
 
@@ -169,7 +167,7 @@ app.post("/updateTicket/:correlative", async (req, res) => {
           WHERE tickets.correlative=$1`,[correlative])
       res.json(updateTick.rows[0]);
     } else{
-      res.send(false)
+      res.send({status:false})
     }
   } catch (error) {
     console.log(error);

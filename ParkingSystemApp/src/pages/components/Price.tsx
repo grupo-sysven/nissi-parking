@@ -25,7 +25,7 @@ type,
             if(disable==true){
                 //CAMBIA EL PRECIO DE LOS BS CUANDO SE MODIFICA
                 if(pricbs!=pricebs){
-                    const data= await fetch("http://localhost:3000/updatePrice",{
+                    const data= await fetch(`${import.meta.env.VITE_BASE_URL}updatePrice`,{
                         method: "POST",
                         headers: {
                         "Content-Type": "application/json",
@@ -39,7 +39,7 @@ type,
                 } 
                 //CAMBIA EL PRECIO DE LOS DLS CUANDO SE MODIFICA
                 if(pricdls!=pricedls){
-                    const data= await fetch("http://localhost:3000/updatePrice",{
+                    const data= await fetch(`${import.meta.env.VITE_BASE_URL}updatePrice`,{
                         method: "POST",
                         headers: {
                         "Content-Type": "application/json",
@@ -53,7 +53,7 @@ type,
                 }
                 //CAMBIA EL PRECIO DE LOS PESOS CUANDO SE MODIFICA
                 if(pricpsos!=pricepsos){
-                    const data= await fetch("http://localhost:3000/updatePrice",{
+                    const data= await fetch(`${import.meta.env.VITE_BASE_URL}updatePrice`,{
                         method: "POST",
                         headers: {
                         "Content-Type": "application/json",

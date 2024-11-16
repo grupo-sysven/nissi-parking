@@ -20,7 +20,7 @@ export default function Coins() {
 
   const getTickets = async () => {
     try {
-      const tick = await fetch("http://localhost:3000/getAllTickets");
+      const tick = await fetch(`${import.meta.env.VITE_BASE_URL}getAllTickets`);
       const data = await tick.json();
       setTick(data);
     } catch (error) {
@@ -29,7 +29,7 @@ export default function Coins() {
   };
   const getPrices = async () => {
     try {
-      const prices = await fetch("http://localhost:3000/getPrices");
+      const prices = await fetch(`${import.meta.env.VITE_BASE_URL}getPrices`);
       const data = await prices.json();
       setPric(data);
     } catch (error) {

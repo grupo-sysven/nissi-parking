@@ -31,7 +31,7 @@ export default function InCar() {
 
   const getTypes = async () => {
     try {
-      const response = await fetch("http://localhost:3000/getTypes");
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}getTypes`);
       const data = await response.json();
       await setTypes(data);
     } catch (error) {
@@ -42,7 +42,7 @@ export default function InCar() {
   const setCar = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3000/setCar", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}setCar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,12 +54,12 @@ export default function InCar() {
       if (data == false) {
         setStatus(2);
       } else if (data !== 0) {
-        const tick = await fetch(`http://localhost:3000/setTicket/${data["correlative"]}`, {
+        const tick = await fetch(`${import.meta.env.VITE_BASE_URL}setTicket/${data["correlative"]}`, {
           method: "POST",
         });
         const ticketData= await tick.json()
         console.log(ticketData)
-        await setPdfData(ticketData)
+        setPdfData(ticketData)
         setPlate("");
         setStatus(1);
       }
@@ -108,33 +108,32 @@ export default function InCar() {
           </span>
           <PDFViewer className="my-5 w-3/4 mx-auto">
           <PDF 
-            correlative={pdfData["correlative"]}
-            date={pdfData["date"]} 
-            description={pdfData["description"]} 
-            entry_date={pdfData["entry_date"]} 
-            plate={pdfData["plate"]} 
+            correlative={pdfData[0]["correlative"]}
+            date={pdfData[0]["date"]} 
+            description={pdfData[0]["description"]} 
+            entry_date={pdfData[0]["entry_date"]} 
+            plate={pdfData[0]["plate"]} 
           />
         </PDFViewer>
-        {/* <QRCode className="w-10 h-10 bg-white text-black mx-auto my-3" value="HOLA ESTE ES WILLI QR"/> */}
         <div className="flex justify-evenly mb-5">
           <PDFDownloadLink
           className="bg-green-200 hover:bg-green-300 rounded-md shadow-md px-5 py-2 my-auto w-[50%]"
-          onClick={(e)=>{
+          onClick={()=>{
             setDownloadState(true)
           }}
           document={
             <PDF 
-              correlative={pdfData["correlative"]}
-              date={pdfData["date"]} 
-              description={pdfData["description"]} 
-              entry_date={pdfData["entry_date"]} 
-              plate={pdfData["plate"]} 
+              correlative={pdfData[0]["correlative"]}
+              date={pdfData[0]["date"]} 
+              description={pdfData[0]["description"]} 
+              entry_date={pdfData[0]["entry_date"]} 
+              plate={pdfData[0]["plate"]} 
             />} 
-            fileName={`${pdfData["plate"]}.pdf`}
+            fileName={`${pdfData[0]["plate"]}.pdf`}
             >
               IMPRIMIR
           </PDFDownloadLink>
-          <button onClick={(e)=>{
+          <button onClick={()=>{
             setStatus(0)
             setDownloadState(false)
           }}  
