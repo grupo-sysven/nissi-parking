@@ -23,8 +23,8 @@ CREATE TABLE prices (
 -- Create table 'car'
 CREATE TABLE car (
     correlative SERIAL PRIMARY KEY,
-    plate TEXT,
-    type_code TEXT UNIQUE NOT NULL,
+    plate TEXT UNIQUE,
+    type_code TEXT NOT NULL,
     FOREIGN KEY (type_code) REFERENCES type(code) ON DELETE NO ACTION
 );
 

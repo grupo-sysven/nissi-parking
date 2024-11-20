@@ -5,18 +5,18 @@ export default function Dashboard() {
         <div className="flex flex-col justify-center rounded-lg my-auto">
           <Link
             to="/in"
-            className="bg-green-400 rounded-t-lg hover:bg-green-600 shadow-lg"
+            className="bg-green-400 rounded-t-lg hover:bg-green-600 shadow-lg text-center text-xl"
           >
-            {/* border border-transparent rounded-md shadow shadow-green-800/50 hover:shadow-lg text-center bg-green-400 hover:bg-green-600 mb-5 mx-2 py-20 */}
-            <img src="./car_moving_flip.png" className="mx-auto h-[30vh]"/>
+            <span>ENTRADA</span>
+            <img src="./arrow-right-solid.svg" className="mx-auto h-[25vh] p-10"/>
           </Link>
 
           <Link
             to="/out"
-            className="bg-red-400 rounded-b-lg hover:bg-red-600 shadow-lg"
+            className="bg-red-400 rounded-b-lg hover:bg-red-600 shadow-lg text-center text-xl"
           >
-            {/* border border-transparent rounded-md shadow shadow-red-800/50 hover:shadow-lg text-center bg-red-500 hover:bg-red-700 mx-2 py-20 */}
-            <img src="./car_moving.png" className="mx-auto h-[30vh]"/>
+            <span>SALIDA</span>
+            <img src="./arrow-right-solid.svg" className="mx-auto h-[25vh] p-10 rotate-180"/>
           </Link>
         </div>
     )

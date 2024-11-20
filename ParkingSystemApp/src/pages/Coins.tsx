@@ -47,7 +47,7 @@ export default function Coins() {
         {tick.map((tic) =>
           tic.status == false ? (
             <div className="my-auto">
-              <b className="">check</b>
+              <b className="">nocheck</b>
               <span className="my-auto">
                 {tic.count}
               </span>
@@ -55,7 +55,7 @@ export default function Coins() {
           ) : (
             <div className="my-auto">
               {/* <img src="./check.png" className="w-10 h-auto"/> */}
-              <b className="">nocheck</b>
+              <b className="">check</b>
               <span className="my-auto">
                 {tic.count}
               </span>

@@ -18,6 +18,7 @@ function App() {
           <Link to="/" className=" py-2 text-center text-xs w-full">
             <b>Centro Civico San Cristobal</b>
           </Link>
+          <img src="./logo-nissi-black.png" className="w-16 mr-5"/>
         </div>
         <div className="flex justify-center h-[100vh]">
           <Routes>
