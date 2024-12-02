@@ -31,11 +31,16 @@ export default function OutCar() {
         },false)
         async function success(result:string){
             scanner.clear()
-            const response=await fetch(`${import.meta.env.VITE_BASE_URL}updateTicket/${result}`,{
-                method:'POST'
-            })
-            const data= await response.json()
-            setScanResult(data)
+            try {
+                const response=await fetch(`${import.meta.env.VITE_BASE_URL}updateTicket/${result}`,{
+                    method:'POST'
+                })
+                const data= await response.json()
+                setScanResult(data)
+            } catch (error) {
+                console.log("ERROR AL GENERARA")
+            }
+            
         }
         scanner.render(success, (e)=>{
             if(scanResult!==null && scanResult.status!==false){

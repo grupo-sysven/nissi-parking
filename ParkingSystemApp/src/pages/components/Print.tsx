@@ -1,6 +1,7 @@
 import Printer, { JustifyModes, QrModes } from "esc-pos-printer";
 import { useEffect, useState } from "react";
 import moment from 'moment';
+import TicketComponent from "./TicketComponent";
 
 interface TicketData { 
     correlative: number; 
@@ -77,6 +78,11 @@ const Print:React.FC<ChildComponentProps> = ({ticketData, setTicketData}) =>{
             <span className="text-green-600 animate-bounce mx-auto mt-5">
                 Registrado Correctamente
             </span>
+            {ticketData==null?
+                    <div></div>
+                    :
+                    <TicketComponent TicketInfo={ticketData}/>
+                }
             <div className="mx-auto flex flex-col text-center">
                 <label htmlFor="printers" className="text-gray-400 mt-5">SELECCIONE UNA IMPRESORA</label>
                 <select name="IMPRESORAS" id="printers" className="text-center text-lg mx-auto mb-5"
@@ -111,16 +117,6 @@ const Print:React.FC<ChildComponentProps> = ({ticketData, setTicketData}) =>{
                     SALIR
                 </button>
             }
-            {ticketData==null?
-                    <div></div>
-                    :
-                    <ul className="flex flex-col text-center mx-10 my-5 text-xs">
-                        <li><b>Nro: </b>{ticketData.correlative}</li>
-                        <li><b>FECHA DE ENTRADA: </b>{moment(ticketData.date).format('YYYY/MM/DD')} <b>HORA: </b>{moment(ticketData.entry_date).format('HH:mm:ss')}</li>
-                        <li><b>TIPO: </b>{ticketData.description}</li>
-                        <li><b>PLACA: </b>{ticketData.plate}</li>
-                    </ul>
-                }
         </div>
     )
 }

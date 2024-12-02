@@ -140,7 +140,7 @@ app.post("/updateTicket/:correlative", async (req, res) => {
   const now = new Date();
   const { correlative } = req.params;
   
-  //1000 FRAMEWORKS PERO NO PUEDES OBJETENER LA FECHA ACTUAL FK JS
+  //1000 FRAMEWORKS PERO NO PUEDES OBJETENER LA FECHA ACTUAL FUKIN JS
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0'); 
   const day = String(now.getDate()).padStart(2, '0'); 
@@ -149,25 +149,34 @@ app.post("/updateTicket/:correlative", async (req, res) => {
   const sec = String(now.getSeconds()).padStart(2, '0');
 
   const formattedDate = `${year}/${month}/${day} ${hour}:${min}:${sec}`;
-  
+  confirmation=null
   try {
     confirmation=await pool.query(`SELECT * FROM tickets where correlative=$1`,[correlative])
-    if(confirmation.rows[0]["out_date"]==null){
-      await pool.query(`
-        UPDATE public.tickets
-        SET out_date=$1, status=true
-        WHERE correlative=$2
-      `, [formattedDate, correlative]);
-      const updateTick= await pool.query(
-        `SELECT tickets.correlative, date, entry_date, tickets.out_date,car.plate, type.description 
-          FROM tickets INNER JOIN car ON
-          car.correlative=tickets.car_correlative
-          INNER JOIN type ON
-          car.type_code=type.code
-          WHERE tickets.correlative=$1`,[correlative])
-      res.json(updateTick.rows[0]);
-    } else{
-      res.send({status:false})
+    console.log(confirmation)
+  } catch (error) {
+    confirmation=null
+  }
+  try {
+    if (confirmation==null){
+      res.send({status:true})
+    }else{
+      if(confirmation.rows[0]["out_date"]==null){
+        await pool.query(`
+          UPDATE public.tickets
+          SET out_date=$1, status=true
+          WHERE correlative=$2
+        `, [formattedDate, correlative]);
+        const updateTick= await pool.query(
+          `SELECT tickets.correlative, date, entry_date, tickets.out_date,car.plate, type.description 
+            FROM tickets INNER JOIN car ON
+            car.correlative=tickets.car_correlative
+            INNER JOIN type ON
+            car.type_code=type.code
+            WHERE tickets.correlative=$1`,[correlative])
+        res.json(updateTick.rows[0]);
+      } else{
+        res.send({status:false})
+      }
     }
   } catch (error) {
     console.log(error);
