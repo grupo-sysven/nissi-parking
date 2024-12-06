@@ -2,6 +2,22 @@ const cors = require("cors");
 const express = require("express");
 const pool = require("./config/db.js");
 
+const multer = require("multer");
+const { print } = require("pdf-to-printer");
+const path = require("path");
+const fs = require("fs");
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    const extname = ".pdf";
+    const filename = `receipt_${Date.now()}${extname}`;
+    cb(null, filename);
+  },
+});
+const upload = multer({ storage });
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -87,6 +103,25 @@ app.get("/getCars", async (req,res) => {
 })
 
 //POST ROUTES
+app.post("/upload", upload.single("pdf"), async (req, res) => {
+  const filePath = req.file.path;
+  console.log("Archivo guardado en:", filePath);
+  print(filePath, { printer: "Microsoft Print to PDF" })
+  .then(() => {
+    console.log("Impresión completada");
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Error al eliminar el archivo:", err);
+      } else {
+        console.log("Archivo eliminado correctamente");
+      }
+    });
+  })
+  .catch((err) => {
+    console.error("Error al imprimir:", err);
+  });
+});
+
 app.post("/setCar", async (req, res)=>{
   const plate=req.body["plate"]
   let type=req.body["type"]

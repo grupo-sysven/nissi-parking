@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import moment from "moment";
 import QRCode  from "qrcode";
+import { pdf } from "@react-pdf/renderer";
+import TicketPDF from "./TicketPDF";
 
 interface TicketData { 
     correlative: number; 
@@ -52,11 +54,33 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo}) => {
         //   .catch((err) => {
         //     console.log(err)
         //   })
-      }, [elementRef])
+    }, [elementRef])
 
-      useEffect(()=>{
+    const printPDF = async () => {
+        const blob = await pdf(
+            <TicketPDF
+                number={`${TicketInfo?.correlative}`}
+                entryDate={`${moment(TicketInfo?.date).format('YYYY/MM/DD')}`}
+                entryHour={`${moment(TicketInfo?.entry_date).format('HH:mm:ss')}`}
+                type={`${TicketInfo?.description}`}
+                plate={`${TicketInfo?.plate}`}
+                qrImage={base64}
+            />
+        ).toBlob();
+
+        const formData = new FormData();
+        formData.append("pdf", blob, "receipt.pdf");
+
+        await fetch("http://localhost:3000/upload", {
+            method: "POST",
+            body: formData
+        });
+    };
+
+    useEffect(()=>{
         QR(String(TicketInfo?.correlative))
-      },[])
+    }, [])
+
     return (
         <>
             <div ref={elementRef} className=" py-5 text-center text-[11px] mx-auto flex justify-center flex-col px-2">
@@ -73,6 +97,7 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo}) => {
                 <span className="font-bold text-[6px]">{import.meta.env.VITE_SECOND_FOOTER}</span>
             </div>
             <button onClick={onButtonClick} className="bg-slate-300 rounded-md hover:bg-slate-400 px-2 py-1 mx-auto mb-3">Descargar Imagen</button>
+            <button onClick={printPDF} className="bg-slate-300 rounded-md hover:bg-slate-400 px-2 py-1 mx-auto mb-3">Imprimir</button>
         </>
     );
 }
