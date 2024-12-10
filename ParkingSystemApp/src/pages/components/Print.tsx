@@ -1,6 +1,6 @@
-import Printer, { JustifyModes, QrModes } from "esc-pos-printer";
-import { useEffect, useState } from "react";
-import moment from 'moment';
+//import Printer, { JustifyModes, QrModes } from "esc-pos-printer";
+//import { useEffect, useState } from "react";
+//import moment from 'moment';
 import TicketComponent from "./TicketComponent";
 
 interface TicketData { 
@@ -15,8 +15,8 @@ interface ChildComponentProps{
     setTicketData: React.Dispatch<React.SetStateAction<TicketData | null>>;
 }
 
-const Print:React.FC<ChildComponentProps> = ({ticketData, setTicketData}) =>{
-    const [printers, setPrinters] = useState<string[] | []>([]);
+const Print:React.FC<ChildComponentProps> = ({ticketData, /*setTicketData*/}) =>{
+    /*const [printers, setPrinters] = useState<string[] | []>([]);
     const [selectedPrinter, setSelectedPrinter] = useState<string | null>(null);
 
     const [btn,setBtn]= useState(true)
@@ -72,7 +72,7 @@ const Print:React.FC<ChildComponentProps> = ({ticketData, setTicketData}) =>{
 
     useEffect(()=>{
         getPrinters()
-    },[])
+    },[])*/
     return(
         <div className="flex flex-col bg-white border rounded-lg shadow-lg mx-auto w-3/4">
             <span className="text-green-600 animate-bounce mx-auto mt-5">
@@ -83,7 +83,7 @@ const Print:React.FC<ChildComponentProps> = ({ticketData, setTicketData}) =>{
                     :
                     <TicketComponent TicketInfo={ticketData}/>
                 }
-            <div className="mx-auto flex flex-col text-center">
+            {/*<div className="mx-auto flex flex-col text-center">
                 <label htmlFor="printers" className="text-gray-400 mt-5">SELECCIONE UNA IMPRESORA</label>
                 <select name="IMPRESORAS" id="printers" className="text-center text-lg mx-auto mb-5"
                     onChange={(e) => {
@@ -97,8 +97,8 @@ const Print:React.FC<ChildComponentProps> = ({ticketData, setTicketData}) =>{
                     </option>
                 ))}
                 </select>
-            </div>
-            {btn==true?
+            </div>*/}
+            {/*btn==true?
                 <button
                     className="bg-green-200 hover:bg-green-300 rounded-md shadow-md px-5 py-2 mx-auto w-[50%]"
                     onClick={() => {
@@ -116,7 +116,7 @@ const Print:React.FC<ChildComponentProps> = ({ticketData, setTicketData}) =>{
                 >
                     SALIR
                 </button>
-            }
+            */}
         </div>
     )
 }

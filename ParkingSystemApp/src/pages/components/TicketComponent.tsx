@@ -71,7 +71,7 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo}) => {
         const formData = new FormData();
         formData.append("pdf", blob, "receipt.pdf");
 
-        await fetch("http://localhost:3000/upload", {
+        await fetch(`${import.meta.env.VITE_BASE_URL}upload`, {
             method: "POST",
             body: formData
         });
