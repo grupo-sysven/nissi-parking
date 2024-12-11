@@ -47,9 +47,13 @@ const TicketSet:React.FC<ChildComponentProps> = ({setTicketData}) => {
         if (data == false) {
             setStatus(false);
         } else if (data !== 0) {
+            const correlative=data["correlative"]
+            const date = new Date().toLocaleString();
             const tick = await fetch(
-            `${import.meta.env.VITE_BASE_URL}setTicket/${data["correlative"]}`,{
+            `${import.meta.env.VITE_BASE_URL}setTicket`,{
                 method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body:JSON.stringify({correlative,date})
             }
             );
             const ticketData = await tick.json();
@@ -81,10 +85,10 @@ const TicketSet:React.FC<ChildComponentProps> = ({setTicketData}) => {
         <input
         type="text"
         id="plate"
-        className="w-4/5 mx-auto mt-3 border-2 border-b-gray-800 rounded-md hover:shadow-lg hover:bg-slate-300 hover:border-slate-300 hover:border-b-gray-800 bg-slate-200"
-        autoComplete="off"
+        className="w-4/5 h-20 mx-auto mt-3 border-2 border-b-gray-800 rounded-md hover:shadow-lg hover:bg-slate-300 hover:border-slate-300 hover:border-b-gray-800 bg-slate-200 text-2xl"
+        autoComplete="on"
         onChange={(e) => {
-            setPlate(e.target.value);
+            setPlate(e.target.value.toUpperCase());
         }}
         value={plate}
         />

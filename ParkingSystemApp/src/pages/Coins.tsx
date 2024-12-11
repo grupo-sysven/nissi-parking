@@ -42,7 +42,7 @@ export default function Coins() {
     getPrices();
   }, []);
   return (
-    <div className="flex flex-col mt-10">
+    <div className="flex flex-col my-auto text-center">
       <div className="flex justify-evenly">
         {tick.map((tic) =>
           tic.status == false ? (
@@ -65,6 +65,9 @@ export default function Coins() {
         <Link to="/cars" className="my-auto">
           <img src="./eye.png" className="w-10 my-auto" />
         </Link>
+      </div>
+      <div className="bg-gray-400 mx-10 text-lg rounded-t-sm">
+        PRECIOS
       </div>
       <table className="bg-white shadow-lg mx-10">
         <thead className="bg-blue-300 p-2 ">
@@ -93,6 +96,9 @@ export default function Coins() {
           }
         </tbody>
       </table>
+      <Link to="/parkingCars" className="my-10 p-3 bg-blue-800 shadow-md text-xl hover:bg-blue-900 rounded-sm text-[#EAEAEA]">
+        <span className="">VEHICULOS EN EL ESTACIONAMIENTO</span>
+      </Link>
     </div>
   );
 }

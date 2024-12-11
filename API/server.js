@@ -148,15 +148,16 @@ app.post("/setCar", async (req, res)=>{
   }
 })
 
-app.post("/setTicket/:correlative", async (req, res) => {
-  const { correlative } = req.params;
+app.post("/setTicket", async (req, res) => {
+  const correlative = req.body.correlative;
+  const entry_date = req.body.date;
   try {
     const ticket= await pool.query(`
       INSERT INTO tickets
-        (car_correlative) 
+        (car_correlative, entry_date) 
       VALUES
-        ($1) RETURNING *
-      `,[correlative])
+        ($1,$2) RETURNING *
+      `,[correlative,entry_date])
     const correlativeTicket= ticket.rows[0]["correlative"]
     const pdfData= await pool.query(
     `SELECT tickets.correlative, date, entry_date, car.plate, type.description 
@@ -167,7 +168,8 @@ app.post("/setTicket/:correlative", async (req, res) => {
       WHERE tickets.correlative=$1`,[correlativeTicket])
     res.status(201).json(pdfData.rows[0])
   } catch (error) {
-    return res.send("Error with database:", error);
+    console.error("Error with database:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 })
 
