@@ -26,6 +26,16 @@ const port = 3000;
 
 const moment = require('moment');
 
+const formatter = new Intl.DateTimeFormat("es-ES", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  timeZone: "UTC",
+});
+
 //GET ROUTES
 app.get("/getFalseTickets", async (req, res) => {
   try {
@@ -52,6 +62,31 @@ app.get("/getFalseTickets", async (req, res) => {
     res.status(500).send("Error with database: " + err.message);
   }
 });
+
+app.get("/getTicketInfo/:correlative", async(req, res)=>{
+  const { correlative }= req.params
+  try {
+    const result = await pool.query(`
+      SELECT tickets.correlative, date, entry_date, car.plate, type.description 
+        FROM tickets
+      INNER JOIN car
+        ON car.correlative=tickets.car_correlative
+      INNER JOIN type
+        ON car.type_code=type.code
+        WHERE tickets.correlative=$1
+        `,[correlative])
+
+    const date=formatter.format(result.rows[0]["date"])
+    const entry_date=formatter.format(result.rows[0]["entry_date"])
+    
+    // result.rows[0]["date"]= date
+    // result.rows[0]["entry_date"]= entry_date
+    
+    res.json(result.rows[0])
+  } catch (error) {
+    res.send("Error with database:", error);
+  }
+})
 
 app.get("/getTypes", async(req, res)=>{
   try {

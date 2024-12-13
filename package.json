@@ -1,0 +1,19 @@
+{
+  "name": "parkingsystem",
+  "workspaces": [
+    "ParkingSystemApp",
+    "API"
+  ],
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev":  "concurrently \"npm:dev --workspace=ParkingSystemApp\" \"npm:dev --workspace=API\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
