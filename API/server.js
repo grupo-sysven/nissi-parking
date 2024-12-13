@@ -3,6 +3,7 @@ const express = require("express");
 const pool = require("./config/db.js");
 
 const multer = require("multer");
+const ExcelJS = require('exceljs')
 const { print } = require("pdf-to-printer");
 const path = require("path");
 const fs = require("fs");
@@ -137,7 +138,102 @@ app.get("/getCars", async (req,res) => {
   }
 })
 
+app.get("/report/today",async(req,res)=>{
+  const today= new Date().toLocaleDateString()
+  try {
+    const ticketsToday= await pool.query(`SELECT 
+        tickets.correlative as "NRO", 
+        car.plate as "PLACA", 
+        type.description as "TIPO", 
+        MAX(CASE WHEN tickets_coins.coin_correlative = '01' THEN tickets_coins.total END) AS "BOLIVARES",
+        MAX(CASE WHEN tickets_coins.coin_correlative = '02' THEN tickets_coins.total END) AS "DOLARES",
+        MAX(CASE WHEN tickets_coins.coin_correlative = '03' THEN tickets_coins.total END) AS "PESOS"
+        FROM tickets
+        INNER JOIN car ON car.correlative = tickets.correlative
+        INNER JOIN type ON car.type_code = type.code
+        INNER JOIN tickets_coins ON tickets_coins.main_correlative = tickets.correlative
+        WHERE tickets.status = true
+        AND (tickets.out_date >= '${today} 00:00:00' and tickets.out_date <= '${today} 11:59:00')
+        GROUP BY tickets.correlative, car.plate, type.description
+        ORDER BY tickets.correlative asc;
+    `)
+    res.json(ticketsToday.rows)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+})
+
 //POST ROUTES
+app.post('/utils/generate-report', async (req, res) => {
+  const { todayTick, sumTotals } = req.body
+  const today= new Date().toLocaleDateString()
+  //console.log(todayTick, sumTotals)
+  returnung= {
+    "TICKETS":todayTick,
+    "TOTALES":sumTotals
+  }
+  console.log(returnung)
+  try {
+      // Crear un nuevo Workbook y Worksheet
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet(`Report-${today}`);
+
+      // Definir las columnas del archivo Excel
+      worksheet.columns = [
+          { header: 'NRO', key: 'NRO', width: 10 },
+          { header: 'PLACA', key: 'PLACA', width: 30 },
+          { header: 'TIPO', key: 'TIPO', width: 10 },
+          { header: 'BOLIVARES', key: 'BOLIVARES', width: 20 },
+          { header: 'DOLARES', key: 'DOLARES', width: 20 },
+          { header: 'PESOS', key: 'PESOS', width: 20 },
+
+      ];
+
+      // Agregar datos de ejemplo (puedes reemplazar esto con datos reales)
+      todayTick.forEach((item) => worksheet.addRow({
+        NRO: item.NRO,
+        PLACA: item.PLACA,
+        TIPO: item.TIPO,
+        BOLIVARES: item.BOLIVARES,
+        DOLARES: item.DOLARES,
+        PESOS: item.PESOS,
+      }));
+
+      // Agregar fila de sumas al final
+      worksheet.addRow({
+        NRO: 'TOTAL',
+        PLACA: '',
+        TIPO: '',
+        BOLIVARES: sumTotals.bolivares.toFixed(2),
+        DOLARES: sumTotals.dolares.toFixed(2),
+        PESOS: sumTotals.pesos.toFixed(2),
+      });
+
+      // Agregar estilos (opcional)
+      worksheet.getRow(1).font = { bold: true }; // Encabezado en negrita
+
+      // Guardar el archivo en un buffer
+      const buffer = await workbook.xlsx.writeBuffer();
+
+      // Configurar el encabezado para descarga
+      res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="report${today}.xlsx"`
+      );
+      res.setHeader(
+          'Content-Type',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+
+      // Enviar el archivo al cliente
+      res.send(buffer);
+  } catch (error) {
+      console.error('Error generando el archivo Excel:', error);
+      res.status(500).send('Error al generar el archivo Excel');
+  }
+});
+
 app.post("/upload", upload.single("pdf"), async (req, res) => {
   const filePath = req.file.path;
   console.log("Archivo guardado en:", filePath);
@@ -224,7 +320,7 @@ app.post("/updateTicket/:correlative", async (req, res) => {
   confirmation=null
   try {
     confirmation=await pool.query(`SELECT * FROM tickets where correlative=$1`,[correlative])
-    console.log(confirmation)
+    console.log("NRO DE TICKET A REGISTRAR: ",confirmation.rows[0]["correlative"])
   } catch (error) {
     confirmation=null
   }

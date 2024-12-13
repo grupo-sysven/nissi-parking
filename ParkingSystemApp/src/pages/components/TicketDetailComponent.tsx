@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router"
 import TicketComponent from "./TicketComponent";
+import GoHome from "./GoHome";
 interface TicketData{ 
     correlative: number; 
     date: string; 
@@ -39,6 +40,7 @@ export default function TicketDetailComponent() {
             <span>NO SE PUDIERON CARGAR LOS DATOS PARA ESTE TICKET</span>
 
         }
+        <GoHome/>
     </div>
     )
 }
