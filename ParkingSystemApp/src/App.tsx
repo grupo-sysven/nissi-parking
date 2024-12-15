@@ -10,15 +10,27 @@ import ParkingCars from "./pages/ParkingCars";
 import TicketDetailComponent from "./pages/components/TicketDetailComponent";
 import DailyReport from "./pages/DailyReport";
 
+const options: Intl.DateTimeFormatOptions = {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric" ,
+  second: "numeric",
+  dayPeriod:"narrow",
+};
 function App() {
   const [time,setTime]=useState("")
+  
   const clock=()=>{
-    const date= new Date().toLocaleString()
+    const date= new Date().toLocaleString('es-ES',options)
     setTime(date)
   }
-  useEffect(()=>{
-    setInterval (clock, 1000);
-  })
+  useEffect(() => {
+    const intervalId = setInterval(clock, 1000);
+    return () => clearInterval(intervalId); // Limpia el intervalo al desmontar el componente.
+  }, []);
   return (
     <>
       <BrowserRouter>
@@ -31,7 +43,7 @@ function App() {
           <Link to="/" className="py-2 text-sm text-white my-auto">
             <b>Centro Civico San Cristobal</b>
           </Link>
-          <img src="/public/logo-nissi-white.png" className="w-16 mx-5 mt-1"/>
+          <img src="/logo-nissi-white.png" className="w-16 mx-5 mt-1"/>
           </div>
 
           <div className="text-sm text-nowrap text-[#bebebe] bg-[#191270]">

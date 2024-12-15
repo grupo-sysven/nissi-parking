@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import InParkingVehicle from "./components/InParkingVehicle";
+import GoHome from "./components/GoHome";
 
 interface TicketItem{
     correlative:number;
@@ -61,7 +62,7 @@ export default function ParkingCars() {
         fetchTickets()
     },[])
     return(
-    <div  className="my-16">
+    <div  className="my-24">
         <div className="w-full flex justify-center text-base">
             <input 
                 type="text" 
@@ -80,7 +81,7 @@ export default function ParkingCars() {
             ))}
 
         </div>
-        
+        <GoHome/>
 
     </div>
     )

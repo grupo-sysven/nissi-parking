@@ -139,7 +139,9 @@ app.get("/getCars", async (req,res) => {
 })
 
 app.get("/report/today",async(req,res)=>{
-  const today= new Date().toLocaleDateString()
+  const formatDate = new Date();
+  formatDate.setMinutes(formatDate.getMinutes() - formatDate.getTimezoneOffset());
+  const today= formatDate.toISOString().split("T")[0]
   try {
     const ticketsToday= await pool.query(`SELECT 
         tickets.correlative as "NRO", 
@@ -153,10 +155,11 @@ app.get("/report/today",async(req,res)=>{
         INNER JOIN type ON car.type_code = type.code
         INNER JOIN tickets_coins ON tickets_coins.main_correlative = tickets.correlative
         WHERE tickets.status = true
-        AND (tickets.out_date >= '${today} 00:00:00' and tickets.out_date <= '${today} 11:59:00')
+        AND (tickets.out_date >= '${today} 00:00:00' and tickets.out_date <= '${today} 24:00:00')
         GROUP BY tickets.correlative, car.plate, type.description
         ORDER BY tickets.correlative asc;
     `)
+
     res.json(ticketsToday.rows)
   } catch (error) {
     console.log(error)
@@ -166,73 +169,134 @@ app.get("/report/today",async(req,res)=>{
 
 //POST ROUTES
 app.post('/utils/generate-report', async (req, res) => {
-  const { todayTick, sumTotals } = req.body
-  const today= new Date().toLocaleDateString()
-  //console.log(todayTick, sumTotals)
-  returnung= {
-    "TICKETS":todayTick,
-    "TOTALES":sumTotals
+  const { todayTick, sumTotals } = req.body;
+  const formatDate = new Date();
+  formatDate.setMinutes(formatDate.getMinutes() - formatDate.getTimezoneOffset());
+  const today= formatDate.toISOString().split("T")[0]
+
+  if (!todayTick || !Array.isArray(todayTick) || !sumTotals) {
+    return res.status(400).json({ error: "Datos inválidos enviados al servidor." });
   }
-  console.log(returnung)
+
   try {
-      // Crear un nuevo Workbook y Worksheet
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet(`Report-${today}`);
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(`Report-${today}`);
 
-      // Definir las columnas del archivo Excel
-      worksheet.columns = [
-          { header: 'NRO', key: 'NRO', width: 10 },
-          { header: 'PLACA', key: 'PLACA', width: 30 },
-          { header: 'TIPO', key: 'TIPO', width: 10 },
-          { header: 'BOLIVARES', key: 'BOLIVARES', width: 20 },
-          { header: 'DOLARES', key: 'DOLARES', width: 20 },
-          { header: 'PESOS', key: 'PESOS', width: 20 },
+    worksheet.columns = [
+      { header: 'NRO', key: 'NRO', width: 10 },
+      { header: 'PLACA', key: 'PLACA', width: 30 },
+      { header: 'TIPO', key: 'TIPO', width: 10 },
+      { header: 'BOLIVARES', key: 'BOLIVARES', width: 20 },
+      { header: 'DOLARES', key: 'DOLARES', width: 20 },
+      { header: 'PESOS', key: 'PESOS', width: 20 },
+    ];
 
-      ];
+    todayTick.forEach((item) => worksheet.addRow({
+      NRO: item.NRO || '',
+      PLACA: item.PLACA || '',
+      TIPO: item.TIPO || '',
+      BOLIVARES: item.BOLIVARES || 0,
+      DOLARES: item.DOLARES || 0,
+      PESOS: item.PESOS || 0,
+    }));
 
-      // Agregar datos de ejemplo (puedes reemplazar esto con datos reales)
-      todayTick.forEach((item) => worksheet.addRow({
-        NRO: item.NRO,
-        PLACA: item.PLACA,
-        TIPO: item.TIPO,
-        BOLIVARES: item.BOLIVARES,
-        DOLARES: item.DOLARES,
-        PESOS: item.PESOS,
-      }));
+    worksheet.addRow({
+      NRO: 'TOTAL',
+      PLACA: '',
+      TIPO: '',
+      BOLIVARES: sumTotals.bolivares ? sumTotals.bolivares.toFixed(2) : '0.00',
+      DOLARES: sumTotals.dolares ? sumTotals.dolares.toFixed(2) : '0.00',
+      PESOS: sumTotals.pesos ? sumTotals.pesos.toFixed(2) : '0.00',
+    });
 
-      // Agregar fila de sumas al final
-      worksheet.addRow({
-        NRO: 'TOTAL',
-        PLACA: '',
-        TIPO: '',
-        BOLIVARES: sumTotals.bolivares.toFixed(2),
-        DOLARES: sumTotals.dolares.toFixed(2),
-        PESOS: sumTotals.pesos.toFixed(2),
-      });
+    worksheet.getRow(1).font = { bold: true };
 
-      // Agregar estilos (opcional)
-      worksheet.getRow(1).font = { bold: true }; // Encabezado en negrita
+    const buffer = await workbook.xlsx.writeBuffer();
 
-      // Guardar el archivo en un buffer
-      const buffer = await workbook.xlsx.writeBuffer();
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="report-${today}.xlsx"`
+    );
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
 
-      // Configurar el encabezado para descarga
-      res.setHeader(
-          'Content-Disposition',
-          `attachment; filename="report${today}.xlsx"`
-      );
-      res.setHeader(
-          'Content-Type',
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      );
-
-      // Enviar el archivo al cliente
-      res.send(buffer);
+    res.send(buffer);
   } catch (error) {
-      console.error('Error generando el archivo Excel:', error);
-      res.status(500).send('Error al generar el archivo Excel');
+    console.error('Error generando el archivo Excel:', error);
+    res.status(500).send('Error al generar el archivo Excel');
   }
 });
+
+// app.post('/utils/generate-report', async (req, res) => {
+//   const { todayTick, sumTotals } = req.body
+//   const today= new Date().toLocaleDateString()
+//   //console.log(todayTick, sumTotals)
+//   returnung= {
+//     "TICKETS":todayTick,
+//     "TOTALES":sumTotals
+//   }
+//   console.log(returnung)
+//   try {
+//       // Crear un nuevo Workbook y Worksheet
+//       const workbook = new ExcelJS.Workbook();
+//       const worksheet = workbook.addWorksheet(`Report-${today}`);
+
+//       // Definir las columnas del archivo Excel
+//       worksheet.columns = [
+//           { header: 'NRO', key: 'NRO', width: 10 },
+//           { header: 'PLACA', key: 'PLACA', width: 30 },
+//           { header: 'TIPO', key: 'TIPO', width: 10 },
+//           { header: 'BOLIVARES', key: 'BOLIVARES', width: 20 },
+//           { header: 'DOLARES', key: 'DOLARES', width: 20 },
+//           { header: 'PESOS', key: 'PESOS', width: 20 },
+
+//       ];
+
+//       // Agregar datos de ejemplo (puedes reemplazar esto con datos reales)
+//       todayTick.forEach((item) => worksheet.addRow({
+//         NRO: item.NRO,
+//         PLACA: item.PLACA,
+//         TIPO: item.TIPO,
+//         BOLIVARES: item.BOLIVARES,
+//         DOLARES: item.DOLARES,
+//         PESOS: item.PESOS,
+//       }));
+
+//       // Agregar fila de sumas al final
+//       worksheet.addRow({
+//         NRO: 'TOTAL',
+//         PLACA: '',
+//         TIPO: '',
+//         BOLIVARES: sumTotals.bolivares.toFixed(2),
+//         DOLARES: sumTotals.dolares.toFixed(2),
+//         PESOS: sumTotals.pesos.toFixed(2),
+//       });
+
+//       // Agregar estilos (opcional)
+//       worksheet.getRow(1).font = { bold: true }; // Encabezado en negrita
+
+//       // Guardar el archivo en un buffer
+//       const buffer = await workbook.xlsx.writeBuffer();
+
+//       // Configurar el encabezado para descarga
+//       res.setHeader(
+//           'Content-Disposition',
+//           `attachment; filename="report${today}.xlsx"`
+//       );
+//       res.setHeader(
+//           'Content-Type',
+//           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+//       );
+
+//       // Enviar el archivo al cliente
+//       res.send(buffer);
+//   } catch (error) {
+//       console.error('Error generando el archivo Excel:', error);
+//       res.status(500).send('Error al generar el archivo Excel');
+//   }
+// });
 
 app.post("/upload", upload.single("pdf"), async (req, res) => {
   const filePath = req.file.path;

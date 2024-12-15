@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Price from "./components/Price";
+import GoHome from "./components/GoHome";
 
 interface Ticket {
   count: string;
@@ -43,6 +44,9 @@ export default function Coins() {
   }, []);
   return (
     <div className="flex flex-col my-auto text-center">
+      <Link to="/dailyreport" className="bg-slate-400 rounded-[999999px] hover:bg-slate-500 shadow-md text-md py-1">
+        REPORTE DIARIO
+      </Link>
       <div className="flex justify-evenly">
         {tick.map((tic) =>
           tic.status == false ? (
@@ -91,7 +95,7 @@ export default function Coins() {
         </thead>
         <tbody>
           {pric.map((p)=>(
-              <Price type={p.type_code} pricebs={p.bs}  pricedls={p.dls} pricepsos={p.psos}/>
+              <Price type={p.type_code} pricebs={p.bs}  pricedls={p.dls} pricepsos={p.psos} key={p.type_code}/>
           ))
           }
         </tbody>
@@ -99,6 +103,7 @@ export default function Coins() {
       <Link to="/parkingCars" className="my-10 p-3 bg-blue-800 shadow-md text-xl hover:bg-blue-900 rounded-sm text-[#EAEAEA]">
         <span className="">VEHICULOS EN EL ESTACIONAMIENTO</span>
       </Link>
+      <GoHome/>
     </div>
   );
 }

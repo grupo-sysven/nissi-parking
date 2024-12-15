@@ -85,8 +85,9 @@ const TicketSet:React.FC<ChildComponentProps> = ({setTicketData}) => {
         <input
         type="text"
         id="plate"
-        className="w-4/5 h-20 mx-auto mt-3 border-2 border-b-gray-800 rounded-md hover:shadow-lg hover:bg-slate-300 hover:border-slate-300 hover:border-b-gray-800 bg-slate-200 text-2xl"
+        className="w-4/5 h-20 mx-auto mt-3 border-2 border-b-gray-800 rounded-md hover:shadow-lg hover:bg-slate-300 hover:border-slate-300 hover:border-b-gray-800 bg-slate-200 text-3xl text-center"
         autoComplete="on"
+        placeholder="Placa del vehículo"
         onChange={(e) => {
             setPlate(e.target.value.toUpperCase());
         }}
