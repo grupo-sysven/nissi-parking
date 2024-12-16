@@ -159,16 +159,17 @@ app.get("/report/today",async(req,res)=>{
         MAX(CASE WHEN tickets_coins.coin_correlative = '02' THEN tickets_coins.total END) AS "DOLARES",
         MAX(CASE WHEN tickets_coins.coin_correlative = '03' THEN tickets_coins.total END) AS "PESOS"
         FROM tickets
-        INNER JOIN car ON car.correlative = tickets.correlative
+        INNER JOIN car ON car.correlative = tickets.car_correlative
         INNER JOIN type ON car.type_code = type.code
         INNER JOIN tickets_coins ON tickets_coins.main_correlative = tickets.correlative
         WHERE tickets.status = true
-        AND (tickets.out_date >= '${today} 00:00:00' and tickets.out_date <= '${today} 24:00:00')
+        AND (tickets.out_date >= '${today} 00:00:00' 
+        AND tickets.out_date <= '${today} 23:59:59')
         GROUP BY tickets.correlative, car.plate, type.description
         ORDER BY tickets.correlative asc;
     `)
 
-    res.json(ticketsToday.rows)
+    return res.json(ticketsToday.rows)
   } catch (error) {
     console.log(error)
     res.status(500).send(error)
