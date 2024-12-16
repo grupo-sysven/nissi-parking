@@ -354,7 +354,21 @@ app.post("/setCar", async (req, res)=>{
 
 app.post("/setTicket", async (req, res) => {
   const correlative = req.body.correlative;
-  const entry_date = req.body.date;
+  const wat= req.body.date
+  console.log("FECHA QUE VIENE DEL DISPOSITIVO: ",wat)
+  const now = new Date();
+
+  // Ajustar la fecha al formato deseado (ISO 8601 con segundos)
+  //ODIO JAVASCRIPT
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // Mes comienza desde 0
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  // Formato: YYYY-MM-DD HH:mm:ss
+  const entry_date = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   try {
     const ticket= await pool.query(`
       INSERT INTO tickets
