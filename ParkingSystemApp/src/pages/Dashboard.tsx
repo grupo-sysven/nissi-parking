@@ -1,6 +1,26 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+interface Ticket {
+  count: string;
+  status: boolean;
+}
+
 export default function Dashboard() {
+    const [tick, setTick] = useState<Ticket[]>([]);
+    const getTickets = async () => {
+      try {
+        const tick = await fetch(`${import.meta.env.VITE_BASE_URL}getAllTickets`);
+        const data = await tick.json();
+        setTick(data);
+        console.log(data)
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    useEffect(() => {
+        getTickets();
+      }, []);
     return(
         <div className="flex flex-col justify-center rounded-lg my-auto">
           <Link
@@ -18,6 +38,26 @@ export default function Dashboard() {
             <span>SALIDA</span>
             <img src="./arrow-right-solid.svg" className="mx-auto h-[25vh] p-10 rotate-180"/>
           </Link>
+          <div className="flex fixed bottom-0 left-10">  
+            {tick.map((tic) =>
+            tic.status == true ? (
+              <div className="mx-1">
+                <b>SALIDAS: </b>
+                <span>
+                  {tic.count}
+                </span>
+              </div>
+            ) : (
+              <div className="mx-1">
+                {/* <img src="./check.png" className="w-10 h-auto"/> */}
+                <b>ENTRADAS: </b>
+                <span>
+                  {tic.count}
+                </span>
+              </div>
+            )
+            )}
+          </div>
         </div>
     )
 }

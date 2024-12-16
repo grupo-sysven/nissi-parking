@@ -79,7 +79,7 @@ const DailyReport=()=>{
     },[])
     return(
         <div className="my-32">
-            <button className="bg-green-400 p-2 mb-6 hover:bg-green-500 w-full" onClick={()=>genExcel()}>GENERAR EXCEL</button>
+            <button className="bg-green-400 p-2 mb-6 hover:bg-green-500 w-full" onClick={()=>genExcel()}>EXPORTAR REPORTE EXCEL</button>
             <table className="text-[70%] lg:text-[100%] shadow-xl">
                 <thead className="">
                     <tr className="bg-[#060062] text-white ">

@@ -5,6 +5,7 @@ interface PriceItem {
     pricedls:number;
     pricepsos:number;
     type:string;
+    setApearModal:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Price: React.FC<PriceItem> = ({
@@ -12,6 +13,7 @@ pricebs,
 pricedls,
 pricepsos,
 type,
+setApearModal,
 })=>{
     const [pricbs, setPricBs]= useState(pricebs)
     const [pricdls, setPricDls]= useState(pricedls)
@@ -35,6 +37,8 @@ type,
                     const dataa= await data.json() 
                     if (dataa["ok"]==false){
                         setPricBs(pricebs)
+                    }else{
+                        setApearModal(true)
                     }
                 } 
                 //CAMBIA EL PRECIO DE LOS DLS CUANDO SE MODIFICA
@@ -49,6 +53,8 @@ type,
                     const dataa= await data.json() 
                     if (dataa["ok"]==false){
                         setPricDls(pricedls)
+                    }else{
+                        setApearModal(true)
                     }
                 }
                 //CAMBIA EL PRECIO DE LOS PESOS CUANDO SE MODIFICA
@@ -63,6 +69,8 @@ type,
                     const dataa= await data.json() 
                     if (dataa["ok"]==false){
                         setPricPsos(pricepsos)
+                    }else{
+                        setApearModal(true)
                     }
                 }
             }
@@ -108,11 +116,13 @@ type,
                 />
                 </th>
               <th className="border">
-                <button onClick={()=>setDisable(!disable)}>
+                <button onClick={()=>{
+                    setDisable(!disable)
+                    }}>
                     <img src="./lapices.png" className="w-8" />
                 </button>
               </th>
-            </tr>
+        </tr>
     )
 }
 export default Price;

@@ -100,8 +100,16 @@ app.get("/getTypes", async(req, res)=>{
 })
 
 app.get("/getAllTickets", async (req, res) =>{
+  const formatDate = new Date();
+  formatDate.setMinutes(formatDate.getMinutes() - formatDate.getTimezoneOffset());
+  const today= formatDate.toISOString().split("T")[0]
   try {
-    const tickets = await pool.query("SELECT COUNT(status), status FROM tickets GROUP BY status");
+    const tickets = await pool.query(`
+      SELECT COUNT(status), status FROM tickets WHERE
+      (tickets.entry_date >= '${today} 00:00:00' and tickets.entry_date <= '${today} 24:00:00') 
+      OR (tickets.out_date >= '${today} 00:00:00' and tickets.out_date <= '${today} 24:00:00') 
+      GROUP BY status
+      `);
     res.json(tickets.rows)
   } catch (error) {
     res.send("Error with database:", error);
