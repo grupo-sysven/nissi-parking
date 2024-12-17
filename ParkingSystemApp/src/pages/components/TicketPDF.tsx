@@ -7,6 +7,7 @@ const styles = StyleSheet.create({
     width: "58mm", // Ancho de 58 mm (configuración precisa)
     padding: "6mm",
     fontSize: 7,
+    fontFamily: "Courier"
   },
   header: {
     textAlign: "center",
