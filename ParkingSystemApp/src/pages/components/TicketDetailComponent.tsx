@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router"
 import TicketComponent from "./TicketComponent";
 import GoHome from "./GoHome";
+import GoInfo from "./GoInfo";
 interface TicketData{ 
     correlative: number; 
     date: string; 
@@ -32,15 +33,15 @@ export default function TicketDetailComponent() {
     },[])
 
     return(
-    <div className="flex justify-center flex-col text-center my-auto mt-28 bg-[#1c37ff21] rounded-lg p-2 shadow-md">
+    <div className="flex justify-center flex-col text-center bg-[#1c37ff21] rounded-lg p-2 shadow-md my-auto w-full mx-10">
         <h1 className="">DETALLES DEL TICKET</h1>
         {ticketInfo?
-            <TicketComponent TicketInfo={ticketInfo}/>
+            <TicketComponent TicketInfo={ticketInfo} download={true}/>
             :
             <span>NO SE PUDIERON CARGAR LOS DATOS PARA ESTE TICKET</span>
-
         }
         <GoHome/>
+        <GoInfo/>
     </div>
     )
 }

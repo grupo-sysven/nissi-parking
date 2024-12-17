@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import GoHome from "./components/GoHome";
+import GoInfo from "./components/GoInfo";
 
 interface TodayTickets{
     NRO:number;
@@ -117,6 +118,7 @@ const DailyReport=()=>{
                 </tfoot>
             </table>
             <GoHome/>  
+            <GoInfo/>
         </div>
     )
 }

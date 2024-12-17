@@ -74,15 +74,15 @@ const Print:React.FC<ChildComponentProps> = ({ticketData, /*setTicketData*/}) =>
         getPrinters()
     },[])*/
     return(
-        <div className="flex flex-col bg-white border rounded-lg shadow-lg mx-auto w-3/4">
-            <span className="text-green-600 animate-bounce mx-auto mt-5">
+        <div className="flex flex-col bg-white border rounded-lg shadow-lg w-full">
+            {/* <span className="text-green-600 animate-bounce mx-auto mt-5">
                 Registrado Correctamente
-            </span>
+            </span> */}
             {ticketData==null?
-                    <div></div>
+                <div></div>
                     :
-                    <TicketComponent TicketInfo={ticketData}/>
-                }
+                <TicketComponent TicketInfo={ticketData} download={false}/>
+            }
             {/*<div className="mx-auto flex flex-col text-center">
                 <label htmlFor="printers" className="text-gray-400 mt-5">SELECCIONE UNA IMPRESORA</label>
                 <select name="IMPRESORAS" id="printers" className="text-center text-lg mx-auto mb-5"

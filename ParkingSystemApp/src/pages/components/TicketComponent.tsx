@@ -15,6 +15,7 @@ interface TicketData {
 
 interface ChildComponentProps{
     TicketInfo: TicketData | null;
+    download: boolean;
 }
 
 interface Prices {
@@ -24,7 +25,7 @@ interface Prices {
     type_code:string;
 }
 
-const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo}) => {
+const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo, download}) => {
     const elementRef = useRef<HTMLDivElement>(null);
     const [base64,setBase64]=useState("");
     const [pric, setPric] = useState<Prices[]>([]);
@@ -103,7 +104,7 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo}) => {
 
     return (
         <>
-            <div ref={elementRef} className=" py-5 text-center text-[11px] mx-auto flex justify-center flex-col px-2">
+            <div ref={elementRef} className=" py-5 text-center text-[11px] mx-auto flex justify-center flex-col px-2 my-auto">
                 <span className="font-bold">{import.meta.env.VITE_FIRST_HEADER}</span>
                 <span className="font-bold">{import.meta.env.VITE_SECOND_HEADER}</span>
                 <ul className="flex flex-col text-center text-[10px]">
@@ -116,8 +117,15 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo}) => {
                 <span className="font-bold text-[6px]">{import.meta.env.VITE_FIRST_FOOTER}</span>
                 <span className="font-bold text-[6px]">{import.meta.env.VITE_SECOND_FOOTER}</span>
             </div>
-            <button onClick={onButtonClick} className="bg-slate-300 rounded-md hover:bg-slate-400 px-2 py-1 mx-auto mb-3">Descargar Imagen</button>
-            <button onClick={printPDF} className="bg-slate-300 rounded-md hover:bg-slate-400 px-2 py-1 mx-auto mb-3">Imprimir</button>
+            <div className="flex">
+                {download?
+                    <button onClick={onButtonClick} className="rounded-bl-md bg-slate-300  hover:bg-slate-400 px-2 py-1 mx-auto w-full">Descargar Imagen</button>
+                    :
+                    <>
+                    </>
+                }
+                <button onClick={printPDF} className={`${download?"rounded-br-md":"rounded-b-md"} bg-slate-400 hover:bg-slate-500 text-xl py-2 mx-auto w-full`}>Imprimir</button>
+            </div>
         </>
     );
 }

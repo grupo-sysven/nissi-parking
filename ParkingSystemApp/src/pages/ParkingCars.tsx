@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import InParkingVehicle from "./components/InParkingVehicle";
 import GoHome from "./components/GoHome";
+import GoInfo from "./components/GoInfo";
 
 interface TicketItem{
     correlative:number;
@@ -77,12 +78,12 @@ export default function ParkingCars() {
         </div>
         <div className="flex flex-wrap justify-center mt-2">
             {showTickets.map((t) => (
-                    <InParkingVehicle key={t.correlative} correlative={t.correlative} entry_date={t.entry_date} plate={t.plate} description={t.description}/>
+                <InParkingVehicle key={t.correlative} correlative={t.correlative} entry_date={t.entry_date} plate={t.plate} description={t.description}/>
             ))}
 
         </div>
         <GoHome/>
-
+        <GoInfo/>
     </div>
     )
 }
