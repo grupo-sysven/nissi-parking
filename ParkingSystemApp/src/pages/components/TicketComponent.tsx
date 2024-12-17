@@ -17,9 +17,27 @@ interface ChildComponentProps{
     TicketInfo: TicketData | null;
 }
 
+interface Prices {
+    bs:number;
+    dls:number;
+    psos:number;
+    type_code:string;
+}
+
 const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo}) => {
     const elementRef = useRef<HTMLDivElement>(null);
-    const [base64,setBase64]=useState("")
+    const [base64,setBase64]=useState("");
+    const [pric, setPric] = useState<Prices[]>([]);
+
+    const getPrices = async () => {
+        try {
+            const prices = await fetch(`${import.meta.env.VITE_BASE_URL}getPrices`);
+            const data = await prices.json();
+            setPric(data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const QR=async(text:string)=>{
         await QRCode.toDataURL(text,(err,text)=>{
@@ -65,6 +83,7 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo}) => {
                 type={`${TicketInfo?.description}`}
                 plate={`${TicketInfo?.plate}`}
                 qrImage={base64}
+                pric={pric}
             />
         ).toBlob();
 
@@ -77,9 +96,10 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo}) => {
         });
     };
 
-    useEffect(()=>{
-        QR(String(TicketInfo?.correlative))
-    }, [])
+    useEffect(() => {
+        getPrices();
+        QR(String(TicketInfo?.correlative));
+    }, []);
 
     return (
         <>
