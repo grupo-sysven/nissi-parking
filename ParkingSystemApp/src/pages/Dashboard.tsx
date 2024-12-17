@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import GoInfo from "./components/GoInfo";
 
 interface Ticket {
   count: string;
@@ -38,17 +39,17 @@ export default function Dashboard() {
             <span>SALIDA</span>
             <img src="./arrow-right-solid.svg" className="mx-auto h-[25vh] p-10 rotate-180"/>
           </Link>
-          <div className="flex fixed bottom-0 left-10">  
+          <div className="fixed right-0 bottom-0 w-full text-center">  
             {tick.map((tic) =>
             tic.status == true ? (
-              <div className="mx-1">
+              <div className="mx-5">
                 <b>SALIDAS: </b>
                 <span>
                   {tic.count}
                 </span>
               </div>
             ) : (
-              <div className="mx-1">
+              <div className="mx-5">
                 {/* <img src="./check.png" className="w-10 h-auto"/> */}
                 <b>ENTRADAS: </b>
                 <span>
@@ -58,6 +59,7 @@ export default function Dashboard() {
             )
             )}
           </div>
+          <GoInfo/>
         </div>
     )
 }

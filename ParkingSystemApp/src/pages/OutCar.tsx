@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Html5QrcodeScanner } from "html5-qrcode";
 import moment from 'moment';
 import GoHome from "./components/GoHome";
+import GoInfo from "./components/GoInfo";
 
 
 interface scanData {
@@ -20,15 +21,16 @@ export default function OutCar() {
     const [refresh, setRefresh]=useState(true)
 
     useEffect(()=>{
-        setScanResult(null)
         const scanner=new Html5QrcodeScanner("reader",{
-            fps:10, 
+            fps:40, 
             qrbox:{
                 height:500,
                 width:500,
             },
-            supportedScanTypes:[0,1]
+            supportedScanTypes:[0],
+            formatsToSupport:[0],
         },false)
+        setScanResult(null)
         async function success(result:string){
             scanner.clear()
             try {
@@ -38,7 +40,8 @@ export default function OutCar() {
                 const data= await response.json()
                 setScanResult(data)
             } catch (error) {
-                console.log("ERROR AL GENERARA")
+                alert("ERROR AL LEER REGISTRAR EL TICKET")
+                return
             }
             
         }
@@ -66,10 +69,11 @@ export default function OutCar() {
                     <li><b>SALIDA:</b> {moment(scanResult.out_date).format("YYYY/MM/DD HH:mm:ss")}</li>
                 </ul>
                 <span className="mx-auto animate-bounce pt-5">REGISTRADO CORRECTAMENTE</span>
+                <button onClick={()=>setRefresh(!refresh)} className="bg-green-600 px-3 py-1 mx-auto mt-3 rounded-md shadow-md hover:bg-green-800">Escanear otro...</button>
             </div>
             }
-            <button onClick={()=>setRefresh(!refresh)} className="bg-green-600 px-3 py-1 mx-auto mt-3 rounded-md shadow-md hover:bg-green-800">Escanear otro...</button>
             <GoHome/>
+            <GoInfo/>
         </div>
     )
 }
