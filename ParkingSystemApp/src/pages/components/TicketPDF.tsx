@@ -84,11 +84,13 @@ const ReceiptPDF: React.FC<ReceiptProps> = ({ number, entryDate, entryHour, type
         </View>
         <View style={styles.row}>
           <Text>TIPO: </Text>
-          <Text>{type}</Text>
+          <Text>{type=="CARROS"?"CARRO":"MOTO"}</Text>
         </View>
         <View style={styles.row}>
           <Text>PLACA: </Text>
-          <Text>{plate}</Text>
+          <Text style={{
+            fontSize: 8
+          }}>{plate}</Text>
         </View>
       </View>
       <View>

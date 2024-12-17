@@ -3,6 +3,7 @@ const express = require("express");
 const pool = require("./config/db.js");
 
 const multer = require("multer");
+const ExcelJS = require('exceljs')
 const { print } = require("pdf-to-printer");
 const path = require("path");
 const fs = require("fs");
@@ -25,6 +26,16 @@ app.use(express.json());
 const port = 3000;
 
 const moment = require('moment');
+
+const formatter = new Intl.DateTimeFormat("es-ES", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  timeZone: "UTC",
+});
 
 //GET ROUTES
 app.get("/getFalseTickets", async (req, res) => {
@@ -53,6 +64,31 @@ app.get("/getFalseTickets", async (req, res) => {
   }
 });
 
+app.get("/getTicketInfo/:correlative", async(req, res)=>{
+  const { correlative }= req.params
+  try {
+    const result = await pool.query(`
+      SELECT tickets.correlative, date, entry_date, car.plate, type.description 
+        FROM tickets
+      INNER JOIN car
+        ON car.correlative=tickets.car_correlative
+      INNER JOIN type
+        ON car.type_code=type.code
+        WHERE tickets.correlative=$1
+        `,[correlative])
+
+    const date=formatter.format(result.rows[0]["date"])
+    const entry_date=formatter.format(result.rows[0]["entry_date"])
+    
+    // result.rows[0]["date"]= date
+    // result.rows[0]["entry_date"]= entry_date
+    
+    res.json(result.rows[0])
+  } catch (error) {
+    res.send("Error with database:", error);
+  }
+})
+
 app.get("/getTypes", async(req, res)=>{
   try {
     const result = await pool.query("SELECT * from type");
@@ -64,8 +100,16 @@ app.get("/getTypes", async(req, res)=>{
 })
 
 app.get("/getAllTickets", async (req, res) =>{
+  const formatDate = new Date();
+  formatDate.setMinutes(formatDate.getMinutes() - formatDate.getTimezoneOffset());
+  const today= formatDate.toISOString().split("T")[0]
   try {
-    const tickets = await pool.query("SELECT COUNT(status), status FROM tickets GROUP BY status");
+    const tickets = await pool.query(`
+      SELECT COUNT(status), status FROM tickets WHERE
+      (tickets.entry_date >= '${today} 00:00:00' and tickets.entry_date <= '${today} 24:00:00') 
+      OR (tickets.out_date >= '${today} 00:00:00' and tickets.out_date <= '${today} 24:00:00') 
+      GROUP BY status
+      `);
     res.json(tickets.rows)
   } catch (error) {
     res.send("Error with database:", error);
@@ -102,7 +146,167 @@ app.get("/getCars", async (req,res) => {
   }
 })
 
+app.get("/report/today",async(req,res)=>{
+  const formatDate = new Date();
+  formatDate.setMinutes(formatDate.getMinutes() - formatDate.getTimezoneOffset());
+  const today= formatDate.toISOString().split("T")[0]
+  try {
+    const ticketsToday= await pool.query(`SELECT 
+        tickets.correlative as "NRO", 
+        car.plate as "PLACA", 
+        type.description as "TIPO", 
+        MAX(CASE WHEN tickets_coins.coin_correlative = '01' THEN tickets_coins.total END) AS "BOLIVARES",
+        MAX(CASE WHEN tickets_coins.coin_correlative = '02' THEN tickets_coins.total END) AS "DOLARES",
+        MAX(CASE WHEN tickets_coins.coin_correlative = '03' THEN tickets_coins.total END) AS "PESOS"
+        FROM tickets
+        INNER JOIN car ON car.correlative = tickets.car_correlative
+        INNER JOIN type ON car.type_code = type.code
+        INNER JOIN tickets_coins ON tickets_coins.main_correlative = tickets.correlative
+        WHERE tickets.status = true
+        AND (tickets.out_date >= '${today} 00:00:00' 
+        AND tickets.out_date <= '${today} 23:59:59')
+        GROUP BY tickets.correlative, car.plate, type.description
+        ORDER BY tickets.correlative asc;
+    `)
+
+    return res.json(ticketsToday.rows)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+})
+
 //POST ROUTES
+app.post('/utils/generate-report', async (req, res) => {
+  const { todayTick, sumTotals } = req.body;
+  const formatDate = new Date();
+  formatDate.setMinutes(formatDate.getMinutes() - formatDate.getTimezoneOffset());
+  const today= formatDate.toISOString().split("T")[0]
+
+  if (!todayTick || !Array.isArray(todayTick) || !sumTotals) {
+    return res.status(400).json({ error: "Datos inválidos enviados al servidor." });
+  }
+
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(`Report-${today}`);
+
+    worksheet.columns = [
+      { header: 'NRO', key: 'NRO', width: 10 },
+      { header: 'PLACA', key: 'PLACA', width: 30 },
+      { header: 'TIPO', key: 'TIPO', width: 10 },
+      { header: 'BOLIVARES', key: 'BOLIVARES', width: 20 },
+      { header: 'DOLARES', key: 'DOLARES', width: 20 },
+      { header: 'PESOS', key: 'PESOS', width: 20 },
+    ];
+
+    todayTick.forEach((item) => worksheet.addRow({
+      NRO: item.NRO || '',
+      PLACA: item.PLACA || '',
+      TIPO: item.TIPO || '',
+      BOLIVARES: item.BOLIVARES || 0,
+      DOLARES: item.DOLARES || 0,
+      PESOS: item.PESOS || 0,
+    }));
+
+    worksheet.addRow({
+      NRO: 'TOTAL',
+      PLACA: '',
+      TIPO: '',
+      BOLIVARES: sumTotals.bolivares ? sumTotals.bolivares.toFixed(2) : '0.00',
+      DOLARES: sumTotals.dolares ? sumTotals.dolares.toFixed(2) : '0.00',
+      PESOS: sumTotals.pesos ? sumTotals.pesos.toFixed(2) : '0.00',
+    });
+
+    worksheet.getRow(1).font = { bold: true };
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="report-${today}.xlsx"`
+    );
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error generando el archivo Excel:', error);
+    res.status(500).send('Error al generar el archivo Excel');
+  }
+});
+
+// app.post('/utils/generate-report', async (req, res) => {
+//   const { todayTick, sumTotals } = req.body
+//   const today= new Date().toLocaleDateString()
+//   //console.log(todayTick, sumTotals)
+//   returnung= {
+//     "TICKETS":todayTick,
+//     "TOTALES":sumTotals
+//   }
+//   console.log(returnung)
+//   try {
+//       // Crear un nuevo Workbook y Worksheet
+//       const workbook = new ExcelJS.Workbook();
+//       const worksheet = workbook.addWorksheet(`Report-${today}`);
+
+//       // Definir las columnas del archivo Excel
+//       worksheet.columns = [
+//           { header: 'NRO', key: 'NRO', width: 10 },
+//           { header: 'PLACA', key: 'PLACA', width: 30 },
+//           { header: 'TIPO', key: 'TIPO', width: 10 },
+//           { header: 'BOLIVARES', key: 'BOLIVARES', width: 20 },
+//           { header: 'DOLARES', key: 'DOLARES', width: 20 },
+//           { header: 'PESOS', key: 'PESOS', width: 20 },
+
+//       ];
+
+//       // Agregar datos de ejemplo (puedes reemplazar esto con datos reales)
+//       todayTick.forEach((item) => worksheet.addRow({
+//         NRO: item.NRO,
+//         PLACA: item.PLACA,
+//         TIPO: item.TIPO,
+//         BOLIVARES: item.BOLIVARES,
+//         DOLARES: item.DOLARES,
+//         PESOS: item.PESOS,
+//       }));
+
+//       // Agregar fila de sumas al final
+//       worksheet.addRow({
+//         NRO: 'TOTAL',
+//         PLACA: '',
+//         TIPO: '',
+//         BOLIVARES: sumTotals.bolivares.toFixed(2),
+//         DOLARES: sumTotals.dolares.toFixed(2),
+//         PESOS: sumTotals.pesos.toFixed(2),
+//       });
+
+//       // Agregar estilos (opcional)
+//       worksheet.getRow(1).font = { bold: true }; // Encabezado en negrita
+
+//       // Guardar el archivo en un buffer
+//       const buffer = await workbook.xlsx.writeBuffer();
+
+//       // Configurar el encabezado para descarga
+//       res.setHeader(
+//           'Content-Disposition',
+//           `attachment; filename="report${today}.xlsx"`
+//       );
+//       res.setHeader(
+//           'Content-Type',
+//           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+//       );
+
+//       // Enviar el archivo al cliente
+//       res.send(buffer);
+//   } catch (error) {
+//       console.error('Error generando el archivo Excel:', error);
+//       res.status(500).send('Error al generar el archivo Excel');
+//   }
+// });
+
 app.post("/upload", upload.single("pdf"), async (req, res) => {
   const filePath = req.file.path;
   console.log("Archivo guardado en:", filePath);
@@ -148,15 +352,30 @@ app.post("/setCar", async (req, res)=>{
   }
 })
 
-app.post("/setTicket/:correlative", async (req, res) => {
-  const { correlative } = req.params;
+app.post("/setTicket", async (req, res) => {
+  const correlative = req.body.correlative;
+  const wat= req.body.date
+  console.log("FECHA QUE VIENE DEL DISPOSITIVO: ",wat)
+  const now = new Date();
+
+  // Ajustar la fecha al formato deseado (ISO 8601 con segundos)
+  //ODIO JAVASCRIPT
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // Mes comienza desde 0
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  // Formato: YYYY-MM-DD HH:mm:ss
+  const entry_date = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   try {
     const ticket= await pool.query(`
       INSERT INTO tickets
-        (car_correlative) 
+        (car_correlative, entry_date) 
       VALUES
-        ($1) RETURNING *
-      `,[correlative])
+        ($1,$2) RETURNING *
+      `,[correlative,entry_date])
     const correlativeTicket= ticket.rows[0]["correlative"]
     const pdfData= await pool.query(
     `SELECT tickets.correlative, date, entry_date, car.plate, type.description 
@@ -167,7 +386,8 @@ app.post("/setTicket/:correlative", async (req, res) => {
       WHERE tickets.correlative=$1`,[correlativeTicket])
     res.status(201).json(pdfData.rows[0])
   } catch (error) {
-    return res.send("Error with database:", error);
+    console.error("Error with database:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 })
 
@@ -187,7 +407,7 @@ app.post("/updateTicket/:correlative", async (req, res) => {
   confirmation=null
   try {
     confirmation=await pool.query(`SELECT * FROM tickets where correlative=$1`,[correlative])
-    console.log(confirmation)
+    console.log("NRO DE TICKET A REGISTRAR: ",confirmation.rows[0]["correlative"])
   } catch (error) {
     confirmation=null
   }
