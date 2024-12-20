@@ -100,6 +100,7 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo, download}) => 
     useEffect(() => {
         getPrices();
         QR(String(TicketInfo?.correlative));
+        printPDF();
     }, []);
 
     return (

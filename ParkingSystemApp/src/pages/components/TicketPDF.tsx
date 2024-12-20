@@ -1,5 +1,14 @@
 //import React from "react";
-import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Image, Font } from "@react-pdf/renderer";
+
+Font.register({
+  family: "JetBrainsMono",
+  fonts: [
+    { src: "/fonts/JetBrainsMono-Regular.ttf", fontWeight: "normal" },
+    { src: "/fonts/JetBrainsMono-Bold.ttf", fontWeight: "bold" },
+  ],
+});
+
 
 // Define los estilos con un tamaño fijo de 58 mm de ancho
 const styles = StyleSheet.create({
@@ -7,7 +16,7 @@ const styles = StyleSheet.create({
     width: "58mm", // Ancho de 58 mm (configuración precisa)
     padding: "6mm",
     fontSize: 10,
-    fontFamily: "Courier"
+    fontFamily: "JetBrainsMono"
   },
   header: {
     textAlign: "center",
@@ -26,7 +35,6 @@ const styles = StyleSheet.create({
   image: {
     width: "40mm", // Ajusta el tamaño de la imagen
     height: "40mm",
-    marginBottom: 10,
     marginLeft: "auto",
     marginRight: "auto"
   },
@@ -66,10 +74,10 @@ const ReceiptPDF: React.FC<ReceiptProps> = ({ number, entryDate, entryHour, type
   <Document>
     <Page size={[165, "auto"]} style={styles.page}>
       <View>
-        <Text style={{ textAlign: "center", fontSize: 10 }}>
+        <Text style={{ textAlign: "center", fontSize: 10, fontWeight: "bold" }}>
           {import.meta.env.VITE_FIRST_HEADER}
         </Text>
-        <Text style={{ textAlign: "center", fontSize: 10 }}>
+        <Text style={{ textAlign: "center", fontSize: 10, fontWeight: "bold" }}>
           {/*import.meta.env.VITE_SECOND_HEADER*/}
           {"CENTRO CIVICO\nSAN CRISTOBAL"}
         </Text>
@@ -81,23 +89,23 @@ const ReceiptPDF: React.FC<ReceiptProps> = ({ number, entryDate, entryHour, type
       </View>
       <View style={styles.table}>
         <View style={styles.row}>
-          <Text>NUMERO: </Text>
+          <Text style={{ fontWeight: "bold" }}>NUMERO: </Text>
           <Text>{number}</Text>
         </View>
         <View style={styles.row}>
-          <Text>TIPO: </Text>
+          <Text style={{ fontWeight: "bold" }}>TIPO: </Text>
           <Text>{type == "CARROS" ? "CARRO" : "MOTO"}</Text>
         </View>
         <View style={styles.row}>
-          <Text>PLACA: </Text>
+          <Text style={{ fontWeight: "bold" }}>PLACA: </Text>
           <Text>{plate}</Text>
         </View>
         <View style={styles.row}>
-          <Text>ENTRADA: </Text>
+          <Text style={{ fontWeight: "bold" }}>ENTRADA: </Text>
           <Text>{formatDate(entryDate)}</Text>
         </View>
         <View style={styles.row}>
-          <Text>HORA: </Text>
+          <Text style={{ fontWeight: "bold" }}>HORA: </Text>
           <Text>{entryHour}</Text>
         </View>
       </View>
@@ -107,7 +115,7 @@ const ReceiptPDF: React.FC<ReceiptProps> = ({ number, entryDate, entryHour, type
         </Text>
       </View>
       <View>
-        <Text style={{ textAlign: "center"}}>
+        <Text style={{ textAlign: "center", fontWeight: "bold"}}>
           {"MONTO A CANCELAR\n"}
           {
             type == "CARROS"
@@ -126,6 +134,11 @@ const ReceiptPDF: React.FC<ReceiptProps> = ({ number, entryDate, entryHour, type
           style={styles.image}
           src={{ uri: qrImage, method: "GET", headers: { "Cache-Control": "no-cache" }, body: "" }}
         />
+      </View>
+      <View>
+        <Text style={{ textAlign: "center", fontSize: 10 }}>
+          ----------------------
+        </Text>
       </View>
     </Page>
   </Document>
