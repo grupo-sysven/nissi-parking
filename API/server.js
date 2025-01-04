@@ -307,7 +307,60 @@ app.post('/utils/generate-report', async (req, res) => {
 //   }
 // });
 
-app.post("/upload", upload.single("pdf"), async (req, res) => {
+(async () => {
+  const PQueue = (await import("p-queue")).default;
+
+  const printQueue = new PQueue({ concurrency: 1 });
+
+  app.post("/upload", upload.single("pdf"), async (req, res) => {
+    const filePath = req.file.path;
+    console.log("Archivo guardado en:", filePath);
+
+    printQueue.add(() => processPrintJob(filePath))
+      .then(() => {
+        console.log("Trabajo de impresión completado");
+        res.status(200).send("Impresión completada");
+      })
+      .catch((err) => {
+        console.error("Error al imprimir:", err);
+        res.status(500).send("Error al imprimir");
+      });
+  });
+
+  async function processPrintJob(filePath) {
+    try {
+      await print(filePath, { printer: "Microsoft Print to PDF" });
+      console.log("Impresión completada para:", filePath);
+    } finally {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error al eliminar el archivo:", err);
+        } else {
+          console.log("Archivo eliminado correctamente:", filePath);
+        }
+      });
+    }
+  }
+})();
+
+// Función para manejar el trabajo de impresión
+async function processPrintJob(filePath) {
+  try {
+    await print(filePath, { printer: "Microsoft Print to PDF" });
+    console.log("Impresión completada para:", filePath);
+  } finally {
+    // Eliminar el archivo después de imprimir
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Error al eliminar el archivo:", err);
+      } else {
+        console.log("Archivo eliminado correctamente:", filePath);
+      }
+    });
+  }
+}
+
+/*app.post("/upload", upload.single("pdf"), async (req, res) => {
   const filePath = req.file.path;
   console.log("Archivo guardado en:", filePath);
   print(filePath, { printer: "Microsoft Print to PDF" })
@@ -324,7 +377,7 @@ app.post("/upload", upload.single("pdf"), async (req, res) => {
   .catch((err) => {
     console.error("Error al imprimir:", err);
   });
-});
+});*/
 
 app.post("/setCar", async (req, res)=>{
   const plate=req.body["plate"]
