@@ -21,7 +21,7 @@ export default function InCar() {
         :
         <Print ticketData={ticketData} setTicketData={setTicketData}/>
       }
-      <GoHome />
+      <GoHome place="/"/>
       <GoInfo />
     </div>
   );

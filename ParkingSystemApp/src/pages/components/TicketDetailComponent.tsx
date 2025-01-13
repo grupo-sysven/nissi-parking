@@ -40,7 +40,7 @@ export default function TicketDetailComponent() {
             :
             <span>NO SE PUDIERON CARGAR LOS DATOS PARA ESTE TICKET</span>
         }
-        <GoHome/>
+        <GoHome place="/parkingCars"/>
         <GoInfo/>
     </div>
     )

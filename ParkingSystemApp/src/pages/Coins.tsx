@@ -117,7 +117,7 @@ export default function Coins() {
       <Link to="/parkingCars" className=" p-3 bg-[#060062] shadow-md text-xl hover:bg-orange-600 rounded-sm text-[#EAEAEA]">
         <span className="">VEHÍCULOS EN EL ESTACIONAMIENTO</span>
       </Link>
-      <GoHome/>
+      <GoHome place="/"/>
     </div>
   );
 }
