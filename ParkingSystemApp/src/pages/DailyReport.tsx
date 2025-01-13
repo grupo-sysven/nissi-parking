@@ -117,7 +117,7 @@ const DailyReport=()=>{
                     </tr>
                 </tfoot>
             </table>
-            <GoHome/>  
+            <GoHome place="/coins"/>  
             <GoInfo/>
         </div>
     )

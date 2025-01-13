@@ -82,7 +82,7 @@ export default function ParkingCars() {
             ))}
 
         </div>
-        <GoHome/>
+        <GoHome place="/coins"/>
         <GoInfo/>
     </div>
     )

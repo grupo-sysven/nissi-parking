@@ -72,7 +72,7 @@ export default function OutCar() {
                 <button onClick={()=>setRefresh(!refresh)} className="bg-green-600 px-3 py-1 mx-auto mt-3 rounded-md shadow-md hover:bg-green-800">Escanear otro...</button>
             </div>
             }
-            <GoHome/>
+            <GoHome place="/"/>
             <GoInfo/>
         </div>
     )
