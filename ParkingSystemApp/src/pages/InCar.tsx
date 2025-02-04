@@ -10,16 +10,16 @@ interface ticketData {
   description: string;
   entry_date: string;
   plate: string;
+  payment_coin: string;
 }
 
 export default function InCar() {
   const [ticketData, setTicketData] = useState<ticketData | null>(null);
   return (
     <div className="flex flex-col w-full mx-10 my-auto">
-      {ticketData ==null?
-        <TicketSet setTicketData={setTicketData}/>
-        :
-        <Print ticketData={ticketData} setTicketData={setTicketData}/>
+      {ticketData == null
+        ? <TicketSet setTicketData={setTicketData}/>
+        : <Print ticketData={ticketData} setTicketData={setTicketData}/>
       }
       <GoHome place="/"/>
       <GoInfo />

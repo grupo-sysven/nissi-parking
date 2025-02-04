@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { FaCarSide } from "react-icons/fa6";
+import { FaMotorcycle } from "react-icons/fa";
 
 interface Types {
     code: string;
@@ -10,11 +12,16 @@ interface TicketData {
     date: string; 
     description: string; 
     entry_date: string; 
-    plate: string
+    plate: string;
+    payment_coin: string;
 }
 interface ChildComponentProps{
     setTicketData: React.Dispatch<React.SetStateAction<TicketData | null>>;
 }
+/*interface Coin {
+    code: string;
+    description: string;
+}*/
 
 const TicketSet:React.FC<ChildComponentProps> = ({setTicketData}) => {
     const [types, setTypes] = useState<Types[]>([]);
@@ -22,6 +29,23 @@ const TicketSet:React.FC<ChildComponentProps> = ({setTicketData}) => {
 
     const [plate, setPlate] = useState("");
     const [type, setType] = useState("");
+    /*const [paymentCoin, setPaymentCoin] = useState("MONEDA DE PAGO");
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        console.log(e.target.value);
+        setPaymentCoin(e.target.value);
+    };
+    const [coins, setCoins] = useState<Coin[]>([]);*/
+
+    /*const getCoins = async () => {
+        try {
+            const coins = await fetch(`${import.meta.env.VITE_BASE_URL}getCoins`);
+            const data = await coins.json();
+            setCoins(data);
+        } catch (error) {
+            console.log(error);
+        }
+    };*/
+
     const getTypes = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_BASE_URL}getTypes`);
@@ -44,23 +68,29 @@ const TicketSet:React.FC<ChildComponentProps> = ({setTicketData}) => {
         });
         const data = await response.json();
     
-        if (data == false) {
-            setStatus(false);
-        } else if (data !== 0) {
-            const correlative=data["correlative"]
-            const date = new Date().toLocaleString();
-            const tick = await fetch(
-            `${import.meta.env.VITE_BASE_URL}setTicket`,{
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body:JSON.stringify({correlative,date})
+            if (data == false) {
+                setStatus(false);
+            //} else if (paymentCoin == "MONEDA DE PAGO") {
+                //setStatus(false);
+            } else if (data !== 0 /*&& paymentCoin !== "MONEDA DE PAGO"*/) {
+                const correlative=data["correlative"]
+                const date = new Date().toLocaleString();
+                console.log(correlative);
+                console.log(date);
+                //console.log(paymentCoin);
+                const tick = await fetch(
+                    `${import.meta.env.VITE_BASE_URL}setTicket`,{
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body:JSON.stringify({correlative, date, paymentCoin: ""})
+                    }
+                );
+                const ticketData = await tick.json();
+                console.log("Información devuelta: " + JSON.stringify(ticketData));
+                setTicketData(ticketData);
+                setPlate("");
+                setStatus(true);
             }
-            );
-            const ticketData = await tick.json();
-            setTicketData(ticketData);
-            setPlate("");
-            setStatus(true);
-        }
         } catch (error) {
             console.error("Error:", error);
         }
@@ -68,45 +98,47 @@ const TicketSet:React.FC<ChildComponentProps> = ({setTicketData}) => {
 
     useEffect(()=>{
         getTypes()
+        //getCoins()
     },[])
+
     return (
     <form
-        className="text-center bg-white border rounded-lg shadow-lg h-[50vh] flex flex-col justify-center"
+        className="text-center bg-white border rounded-lg shadow-lg flex flex-col p-8"
         onSubmit={setCar}
         action=""
     >
-        <label
-            htmlFor="plate"
-            className="text-2xl my-8 text-gray-600 hover:text-gray-700"
-        >
-            <b>PLACA DEL VEHICULO</b>
+        <label htmlFor="plate" className="text-2xl mb-6 text-gray-600 hover:text-gray-700">
+            <b>REGISTRAR ENTRADA</b>
         </label>
 
         <input
-        type="text"
-        id="plate"
-        className="w-4/5 h-20 mx-auto mt-3 border-2 border-b-gray-800 rounded-md hover:shadow-lg hover:bg-slate-300 hover:border-slate-300 hover:border-b-gray-800 bg-slate-200 text-3xl text-center"
-        autoComplete="on"
-        placeholder="Placa del vehículo"
-        onChange={(e) => {
-            setPlate(e.target.value.toUpperCase());
-        }}
-        value={plate}
+            type="text"
+            id="plate"
+            className="p-4 mb-4 border rounded-lg outline-none transition-all duration-300 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-200"
+            autoComplete="on"
+            placeholder="PLACA DEL VEHÍCULO"
+            onChange={(e) => {
+                setPlate(e.target.value.toUpperCase());
+            }}
+            value={plate}
         />
-        {status==true?<div></div>:<div className="text-red-400 pt-5">DEBE INGRESAR UNA PLACA</div>}
-        <div className="flex justify-evenly mt-5 ">
+
+        {status == true ? <div></div> : <div className="text-red-400 pt-5">DEBE INGRESAR UNA PLACA Y MONEDA DE PAGO</div>}
+
+        <div className="flex justify-around mt-5">
             {types.map((t) => (
             <button
+                className="px-4 py-2 rounded-md bg-[#191270]"
                 key={t.code}
                 type="submit"
                 onClick={() => {
-                setType(t.code);
+                    setType(t.code);
                 }}
             >
                 {t.code == "01" ? (
-                <img src="./car.png" className="w-16" />
+                    <FaCarSide className="text-white" size={50} />
                 ) : (
-                <img src="./moto.png" className="w-16" />
+                    <FaMotorcycle className="text-white" size={50} />
                 )}
             </button>
             ))}

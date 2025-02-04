@@ -146,6 +146,16 @@ app.get("/getCars", async (req,res) => {
   }
 })
 
+app.get("/getCoins", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM coin")
+    res.json(result.rows)
+  } catch (error) {
+    console.log(error)
+    return res.send(error)
+  }
+})
+
 app.get("/report/today",async(req,res)=>{
   const formatDate = new Date();
   formatDate.setMinutes(formatDate.getMinutes() - formatDate.getTimezoneOffset());
@@ -344,7 +354,7 @@ app.post('/utils/generate-report', async (req, res) => {
 })();
 
 // Función para manejar el trabajo de impresión
-async function processPrintJob(filePath) {
+/*async function processPrintJob(filePath) {
   try {
     await print(filePath, { printer: "Microsoft Print to PDF" });
     console.log("Impresión completada para:", filePath);
@@ -358,7 +368,7 @@ async function processPrintJob(filePath) {
       }
     });
   }
-}
+}*/
 
 /*app.post("/upload", upload.single("pdf"), async (req, res) => {
   const filePath = req.file.path;
@@ -407,8 +417,10 @@ app.post("/setCar", async (req, res)=>{
 
 app.post("/setTicket", async (req, res) => {
   const correlative = req.body.correlative;
-  const wat= req.body.date
-  console.log("FECHA QUE VIENE DEL DISPOSITIVO: ",wat)
+  const wat = req.body.date;
+  const paymentCoin = req.body.paymentCoin;
+  console.log(paymentCoin);
+  console.log("FECHA QUE VIENE DEL DISPOSITIVO: ", wat);
   const now = new Date();
 
   // Ajustar la fecha al formato deseado (ISO 8601 con segundos)
@@ -425,13 +437,13 @@ app.post("/setTicket", async (req, res) => {
   try {
     const ticket= await pool.query(`
       INSERT INTO tickets
-        (car_correlative, entry_date) 
+        (car_correlative, entry_date, payment_coin)
       VALUES
-        ($1,$2) RETURNING *
-      `,[correlative,entry_date])
+        ($1, $2, $3) RETURNING *
+      `, [correlative, entry_date, paymentCoin])
     const correlativeTicket= ticket.rows[0]["correlative"]
     const pdfData= await pool.query(
-    `SELECT tickets.correlative, date, entry_date, car.plate, type.description 
+    `SELECT tickets.correlative, date, entry_date, payment_coin, car.plate, type.description 
       FROM tickets INNER JOIN car ON
       car.correlative=tickets.car_correlative
       INNER JOIN type ON
@@ -444,11 +456,10 @@ app.post("/setTicket", async (req, res) => {
   }
 })
 
-app.post("/updateTicket/:correlative", async (req, res) => {
+app.post("/updateTicket/:correlative/:payment_coin", async (req, res) => {
   const now = new Date();
-  const { correlative } = req.params;
+  const { correlative, payment_coin } = req.params;
   
-  //1000 FRAMEWORKS PERO NO PUEDES OBJETENER LA FECHA ACTUAL FUKIN JS
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0'); 
   const day = String(now.getDate()).padStart(2, '0'); 
@@ -457,12 +468,12 @@ app.post("/updateTicket/:correlative", async (req, res) => {
   const sec = String(now.getSeconds()).padStart(2, '0');
 
   const formattedDate = `${year}/${month}/${day} ${hour}:${min}:${sec}`;
-  confirmation=null
+  confirmation = null
   try {
-    confirmation=await pool.query(`SELECT * FROM tickets where correlative=$1`,[correlative])
-    console.log("NRO DE TICKET A REGISTRAR: ",confirmation.rows[0]["correlative"])
+    confirmation = await pool.query(`SELECT * FROM tickets where correlative=$1`, [correlative])
+    console.log("NRO DE TICKET A REGISTRAR: ", confirmation.rows[0]["correlative"])
   } catch (error) {
-    confirmation=null
+    confirmation = null
   }
   try {
     if (confirmation==null){
@@ -471,9 +482,9 @@ app.post("/updateTicket/:correlative", async (req, res) => {
       if(confirmation.rows[0]["out_date"]==null){
         await pool.query(`
           UPDATE public.tickets
-          SET out_date=$1, status=true
-          WHERE correlative=$2
-        `, [formattedDate, correlative]);
+          SET out_date=$1, payment_coin=$2, status=true
+          WHERE correlative=$3
+        `, [formattedDate, payment_coin, correlative]);
         const updateTick= await pool.query(
           `SELECT tickets.correlative, date, entry_date, tickets.out_date,car.plate, type.description 
             FROM tickets INNER JOIN car ON

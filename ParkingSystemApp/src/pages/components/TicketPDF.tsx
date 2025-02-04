@@ -61,6 +61,7 @@ interface ReceiptProps {
   plate: string;
   qrImage: string;
   pric: Prices[];
+  paymentCoin: string;
 }
 
 const formatDate = (date: string): string => {
@@ -70,7 +71,7 @@ const formatDate = (date: string): string => {
 };
 
 // Componente del PDF
-const ReceiptPDF: React.FC<ReceiptProps> = ({ number, entryDate, entryHour, type, plate, qrImage, pric }) => (
+const ReceiptPDF: React.FC<ReceiptProps> = ({ number, entryDate, entryHour, type, plate, qrImage, pric, paymentCoin }) => (
   <Document>
     <Page size={[165, "auto"]} style={styles.page}>
       <View>
@@ -119,8 +120,8 @@ const ReceiptPDF: React.FC<ReceiptProps> = ({ number, entryDate, entryHour, type
           {"MONTO A CANCELAR\n"}
           {
             type == "CARROS"
-            ? `${pric[1].psos} COP\n${pric[1].dls} USD\n${pric[1].bs} VES`
-            : `${pric[0].psos} COP\n${pric[0].dls} USD\n${pric[0].bs} VES`
+            ? `${paymentCoin == "03" ? "[" : ""} ${pric[1].psos} ${paymentCoin == "03" ? "]" : ""} COP\n${paymentCoin == "02" ? "[" : ""} ${pric[1].dls} USD ${paymentCoin == "02" ? "]" : ""}\n${paymentCoin == "01" ? "[" : ""} ${pric[1].bs} VES ${paymentCoin == "01" ? "]" : ""}`
+            : `${paymentCoin == "03" ? "[" : ""} ${pric[0].psos} ${paymentCoin == "03" ? "]" : ""} COP\n${paymentCoin == "02" ? "[" : ""} ${pric[0].dls} USD ${paymentCoin == "02" ? "]" : ""}\n${paymentCoin == "01" ? "[" : ""} ${pric[0].bs} VES ${paymentCoin == "01" ? "]" : ""}`
           }
         </Text>
       </View>

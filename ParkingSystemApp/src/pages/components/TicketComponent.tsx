@@ -10,7 +10,8 @@ interface TicketData {
     date: string; 
     description: string; 
     entry_date: string; 
-    plate: string
+    plate: string;
+    payment_coin: string;
 }
 
 interface ChildComponentProps{
@@ -76,6 +77,7 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo, download}) => 
     }, [elementRef])
 
     const printPDF = async () => {
+        console.log(`${TicketInfo?.payment_coin}`);
         const blob = await pdf(
             <TicketPDF
                 number={`${TicketInfo?.correlative}`}
@@ -85,6 +87,7 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo, download}) => 
                 plate={`${TicketInfo?.plate}`}
                 qrImage={base64}
                 pric={pric}
+                paymentCoin={`${TicketInfo?.payment_coin}`}
             />
         ).toBlob();
 
@@ -125,7 +128,7 @@ const TicketComponent:React.FC<ChildComponentProps>=({TicketInfo, download}) => 
                     <>
                     </>
                 }
-                <button onClick={printPDF} className={`${download?"rounded-br-md":"rounded-b-md"} bg-slate-400 hover:bg-slate-500 text-xl py-2 mx-auto w-full`}>Imprimir</button>
+                <button onClick={printPDF} className={`${download?"rounded-br-md":"rounded-b-md"} bg-slate-400 hover:bg-slate-500 text-xl py-2 mx-auto w-full`}>IMPRIMIR</button>
             </div>
         </>
     );

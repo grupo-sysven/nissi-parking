@@ -8,7 +8,8 @@ interface TicketData {
     date: string; 
     description: string; 
     entry_date: string; 
-    plate: string
+    plate: string;
+    payment_coin: string;
 }
 interface ChildComponentProps{
     ticketData: TicketData | null;

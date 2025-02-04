@@ -40,16 +40,16 @@ export default function Dashboard() {
             <img src="./arrow-right-solid.svg" className="mx-auto h-[25vh] p-10 rotate-180"/>
           </Link>
           <div className="fixed right-0 bottom-0 w-full text-center">  
-            {tick.map((tic) =>
+            {tick.map((tic, index) =>
             tic.status == true ? (
-              <div className="mx-5">
+              <div key={index} className="mx-5">
                 <b>SALIDAS: </b>
                 <span>
                   {tic.count}
                 </span>
               </div>
             ) : (
-              <div className="mx-5">
+              <div key={index} className="mx-5">
                 {/* <img src="./check.png" className="w-10 h-auto"/> */}
                 <b>ENTRADAS: </b>
                 <span>

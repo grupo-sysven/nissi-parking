@@ -59,16 +59,16 @@ export default function Coins() {
   return (
     <div className="flex flex-col my-auto text-center">
       <div className="flex justify-evenly">
-        {tick.map((tic) =>
+        {tick.map((tic, index) =>
           tic.status == true ? (
-            <div className="my-auto mx-auto">
+            <div key={index} className="my-auto mx-auto">
               <b className="">SALIDAS: </b>
               <span className="my-auto">
                 {tic.count}
               </span>
             </div>
           ) : (
-            <div className="my-auto mx-auto">
+            <div key={index} className="my-auto mx-auto">
               {/* <img src="./check.png" className="w-10 h-auto"/> */}
               <b className="">ENTRADAS: </b>
               <span className="my-auto">
