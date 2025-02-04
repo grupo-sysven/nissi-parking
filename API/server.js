@@ -339,7 +339,7 @@ app.post('/utils/generate-report', async (req, res) => {
 
   async function processPrintJob(filePath) {
     try {
-      await print(filePath, { printer: "POS58." });
+      await print(filePath, { printer: "POS58" });
       console.log("Impresión completada para:", filePath);
     } finally {
       fs.unlink(filePath, (err) => {
