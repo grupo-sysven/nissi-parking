@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { RiMoneyDollarCircleLine } from "react-icons/ri";
+import { TbParkingCircle } from "react-icons/tb";
 
 import Price from "./components/Price";
 import GoHome from "./components/GoHome";
@@ -58,22 +60,22 @@ export default function Coins() {
   }, [apearInfo]);
   return (
     <div className="flex flex-col my-auto text-center">
-      <div className="flex justify-evenly">
+      <div className="flex justify-evenly mb-4">
         {tick.map((tic, index) =>
           tic.status == true ? (
-            <div key={index} className="my-auto mx-auto">
-              <b className="">SALIDAS: </b>
-              <span className="my-auto">
+            <div key={index} className="p-4 w-1/2 ml-2 rounded-md border border-gray-500 bg-gray-100  font-bold">
+              <b>SALIDAS</b>
+              <div className="text-2xl">
                 {tic.count}
-              </span>
+              </div>
             </div>
           ) : (
-            <div key={index} className="my-auto mx-auto">
+            <div key={index} className="p-4 w-1/2 mr-2 rounded-md border border-gray-500 bg-gray-100  font-bold">
               {/* <img src="./check.png" className="w-10 h-auto"/> */}
-              <b className="">ENTRADAS: </b>
-              <span className="my-auto">
+              <b>ENTRADAS</b>
+              <div className="text-2xl">
                 {tic.count}
-              </span>
+              </div>
             </div>
           )
         )}
@@ -81,25 +83,25 @@ export default function Coins() {
           <img src="./eye.png" className="w-10 my-auto" />
         </Link> */}
       </div>
-      <div className="bg-gray-400 text-lg rounded-t-sm">
+      <div className="bg-gray-400 text-lg rounded-t-sm p-2 font-bold">
         PRECIOS
       </div>
-      <table className="bg-white shadow-lg">
-        <thead className="bg-blue-300 p-2 ">
+      <table className="bg-white shadow-lg mb-4">
+        <thead className="bg-blue-300">
           <tr>
-            <th className="border border-separate">
+            <th className="p-2 border-b border-separate">
               <b></b>
             </th>
-            <th className="border border-separate">
+            <th className="p-2 border-b border-separate">
               <b>USD</b>
             </th>
-            <th className="border border-separate">
-              <b>Bs</b>
+            <th className="p-2 border-b border-separate">
+              <b>VES</b>
             </th>
-            <th className="border border-separate">
+            <th className="p-2 border-b border-separate">
               <b>COP</b>
             </th>
-            <th className="border border-separate">
+            <th className="p-2 border-b border-separate">
               <b></b>
             </th>
           </tr>
@@ -111,11 +113,13 @@ export default function Coins() {
           }
         </tbody>
       </table>
-      <Link to="/dailyreport" className="my-2 p-3 bg-[#060062] shadow-md text-xl hover:bg-orange-600 rounded-sm text-[#EAEAEA]">
-        $ INGRESOS DEL DIA
+      <Link to="/dailyreport" className="flex items-center justify-center gap-4 p-3 mb-4 bg-[#060062] shadow-md text-lg hover:bg-orange-600 rounded-md text-[#EAEAEA]">
+        <RiMoneyDollarCircleLine size={25} />
+        INGRESOS DEL DÍA
       </Link>
-      <Link to="/parkingCars" className=" p-3 bg-[#060062] shadow-md text-xl hover:bg-orange-600 rounded-sm text-[#EAEAEA]">
-        <span className="">VEHÍCULOS EN EL ESTACIONAMIENTO</span>
+      <Link to="/parkingCars" className="flex items-center justify-center gap-4 p-3 bg-[#060062] shadow-md text-lg hover:bg-orange-600 rounded-md text-[#EAEAEA]">
+        <TbParkingCircle size={25} />
+        VEHÍCULOS ESTACIONADOS
       </Link>
       <GoHome place="/"/>
     </div>

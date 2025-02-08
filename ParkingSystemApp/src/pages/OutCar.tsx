@@ -124,8 +124,8 @@ export default function OutCar() {
                                 <li><b>ENTRADA: </b>{moment(scanResult.date).format("YYYY/MM/DD")} <b>|</b> {moment(scanResult.entry_date).format("HH:mm:ss")}</li>
                                 <li><b>SALIDA:</b>{moment(scanResult.out_date).format("YYYY/MM/DD HH:mm:ss")}</li>
                             </ul>
-                            <span className="mx-auto animate-bounce pt-5">REGISTRADO CORRECTAMENTE</span>
-                            <button onClick={()=>setRefresh(!refresh)} className="bg-green-600 px-3 py-1 mx-auto mt-3 rounded-md shadow-md hover:bg-green-800">Escanear otro...</button>
+                            <span className="mx-auto animate-bounce pt-5 mb-2">REGISTRADO CORRECTAMENTE</span>
+                            <button onClick={()=>setRefresh(!refresh)} className="border border-green-500 bg-green-400 rounded-md shadow-md p-2 mb-6 hover:bg-green-500">NUEVO ESCANEO</button>
                         </div>
                 )
             }

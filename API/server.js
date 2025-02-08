@@ -161,10 +161,12 @@ app.get("/report/today",async(req,res)=>{
   formatDate.setMinutes(formatDate.getMinutes() - formatDate.getTimezoneOffset());
   const today= formatDate.toISOString().split("T")[0]
   try {
-    const ticketsToday= await pool.query(`SELECT 
-        tickets.correlative as "NRO", 
+    const ticketsToday= await pool.query(`
+      SELECT
+        tickets.correlative as "NRO",
+        tickets.payment_coin as "MP",
         car.plate as "PLACA", 
-        type.description as "TIPO", 
+        type.description as "TIPO",
         MAX(CASE WHEN tickets_coins.coin_correlative = '01' THEN tickets_coins.total END) AS "BOLIVARES",
         MAX(CASE WHEN tickets_coins.coin_correlative = '02' THEN tickets_coins.total END) AS "DOLARES",
         MAX(CASE WHEN tickets_coins.coin_correlative = '03' THEN tickets_coins.total END) AS "PESOS"
@@ -205,27 +207,30 @@ app.post('/utils/generate-report', async (req, res) => {
       { header: 'NRO', key: 'NRO', width: 10 },
       { header: 'PLACA', key: 'PLACA', width: 30 },
       { header: 'TIPO', key: 'TIPO', width: 10 },
+      //{ header: 'MONEDA DE PAGO', key: 'MP', width: 20 },
       { header: 'BOLIVARES', key: 'BOLIVARES', width: 20 },
       { header: 'DOLARES', key: 'DOLARES', width: 20 },
-      { header: 'PESOS', key: 'PESOS', width: 20 },
+      { header: 'PESOS', key: 'PESOS', width: 20 }
     ];
 
     todayTick.forEach((item) => worksheet.addRow({
       NRO: item.NRO || '',
       PLACA: item.PLACA || '',
       TIPO: item.TIPO || '',
-      BOLIVARES: item.BOLIVARES || 0,
-      DOLARES: item.DOLARES || 0,
-      PESOS: item.PESOS || 0,
+      //MP: item.MP === "01" && "VES" || '',
+      BOLIVARES: item.MP === "01" ? item.BOLIVARES : 0 || 0,
+      DOLARES: item.MP === "02" ? item.DOLARES : 0 || 0,
+      PESOS: item.MP === "03" ? item.PESOS : 0 || 0
     }));
 
     worksheet.addRow({
       NRO: 'TOTAL',
       PLACA: '',
       TIPO: '',
-      BOLIVARES: sumTotals.bolivares ? sumTotals.bolivares.toFixed(2) : '0.00',
-      DOLARES: sumTotals.dolares ? sumTotals.dolares.toFixed(2) : '0.00',
-      PESOS: sumTotals.pesos ? sumTotals.pesos.toFixed(2) : '0.00',
+      MP: '',
+      BOLIVARES: sumTotals.bolivares ? sumTotals.bolivares : '0.00',
+      DOLARES: sumTotals.dolares ? sumTotals.dolares : '0.00',
+      PESOS: sumTotals.pesos ? sumTotals.pesos : '0.00',
     });
 
     worksheet.getRow(1).font = { bold: true };

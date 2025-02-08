@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import { MdEdit } from "react-icons/md";
+import { FaCarSide } from "react-icons/fa6";
+import { FaMotorcycle } from "react-icons/fa";
 
 interface PriceItem {
     pricebs:number;
@@ -81,45 +84,43 @@ setApearModal,
 
     return(
         <tr className="hover:bg-slate-200" key={type}>
-              <th className="bg-blue-300 border border-separate ">
-                {type=='01'?
-                (<img src="./car.png" className="h-10 mx-auto"/>)
-                :
-                (<img src="./moto.png" className="h-10 mx-auto"/>)
-                }
+              <th className="bg-blue-300 border-b border-separate ">
+                <div className="p-2">
+                    {type=='01'? <FaCarSide size={30} /> : <FaMotorcycle size={30} />}
+                </div>
               </th>
-              <th className="border">
+              <th className="border-b">
                 <input 
                     type="number" 
                     value={pricdls} 
                     disabled={disable}
                     onChange={(e)=>typeof(Number(e.target.value))=="number"? setPricDls(Number(e.target.value)):setPricDls(pricedls)}
-                    className="focus:bg-gray-200 border border-transparent rounded focus:outline-none focus:border focus:border-b-black w-20"
+                    className="text-right focus:bg-gray-200 border border-transparent rounded focus:outline-none focus:border focus:border-b-black w-20"
                 />
                 </th>
-              <th className="border">
+              <th className="border-b">
                 <input 
                     type="number" 
                     value={pricbs} 
                     disabled={disable}
                     onChange={(e)=>typeof(Number(e.target.value))=="number"? setPricBs(Number(e.target.value)):setPricBs(pricebs)}
-                    className="focus:bg-gray-200 border border-transparent rounded focus:outline-none focus:border focus:border-b-black w-20"
+                    className="text-right focus:bg-gray-200 border border-transparent rounded focus:outline-none focus:border focus:border-b-black w-20"
                 />
                 </th>
-              <th className="border">
+              <th className="border-b">
                 <input 
                     type="number" 
                     value={pricpsos} 
                     disabled={disable}
                     onChange={(e)=>typeof(Number(e.target.value))=="number"? setPricPsos(Number(e.target.value)):setPricPsos(pricepsos)}
-                    className="focus:bg-gray-200 border border-transparent rounded focus:outline-none focus:border focus:border-b-black w-20"
+                    className="text-right focus:bg-gray-200 border border-transparent rounded focus:outline-none focus:border focus:border-b-black w-20"
                 />
                 </th>
-              <th className="border">
-                <button onClick={()=>{
+              <th className="border-b">
+                <button className="p-2" onClick={()=>{
                     setDisable(!disable)
                     }}>
-                    <img src="./lapices.png" className="w-8" />
+                    <MdEdit size={30} />
                 </button>
               </th>
         </tr>

@@ -40,7 +40,7 @@ function App() {
               <b>CENTRO CÍVICO SAN CRISTÓBAL</b>
             </Link>
           </div>
-          <div className="text-sm text-[#ffffff] bg-[#191270]">
+          <div className="p-1 text-sm text-[#ffffff] bg-[#191270]">
             {time}
           </div>
         </div>
